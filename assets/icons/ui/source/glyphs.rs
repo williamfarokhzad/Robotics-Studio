@@ -108,46 +108,40 @@ pub(crate) fn brand_mark_silhouette(p: &egui::Painter, c: Pos2, height: f32, ink
 }
 
 fn brand_mark_styled(p: &egui::Painter, c: Pos2, height: f32, colours: [Color32; 4], edges: bool) {
-    let r = height * 0.48;
-    let [light, mid, dark, _] = colours;
-    let cyan = Color32::from_rgb(0, 220, 255);
-    let edge_col = if edges { crate::theme::Tokens::get().app_bar } else { Color32::TRANSPARENT };
+    let s = height / 20.0;
+    let [light, _mid, dark, _] = colours;
+    let cyan = Color32::from_rgb(0, 229, 255);
+    let titanium = light;
 
-    // Isometric 3D Hexagonal Cube vertices (radius r from center c)
-    let p_top = pos2(c.x, c.y - r);
-    let p_tr = pos2(c.x + r * 0.866, c.y - r * 0.5);
-    let p_br = pos2(c.x + r * 0.866, c.y + r * 0.5);
-    let p_bot = pos2(c.x, c.y + r);
-    let p_bl = pos2(c.x - r * 0.866, c.y + r * 0.5);
-    let p_tl = pos2(c.x - r * 0.866, c.y - r * 0.5);
+    // Geometric W (Left side)
+    let w1 = pos2(c.x - 11.5 * s, c.y - 7.5 * s);
+    let w2 = pos2(c.x - 7.5 * s, c.y + 7.5 * s);
+    let w3 = pos2(c.x - 4.5 * s, c.y - 1.5 * s);
+    let w4 = pos2(c.x - 1.5 * s, c.y + 7.5 * s);
+    let w5 = pos2(c.x + 1.5 * s, c.y - 7.5 * s);
 
-    // Top isometric face (illuminated)
-    p.add(egui::Shape::convex_polygon(vec![p_top, p_tr, c, p_tl], light, Stroke::NONE));
-    // Right isometric face (shaded)
-    p.add(egui::Shape::convex_polygon(vec![c, p_tr, p_br, p_bot], dark, Stroke::NONE));
-    // Left isometric face (mid)
-    p.add(egui::Shape::convex_polygon(vec![p_tl, c, p_bot, p_bl], mid, Stroke::NONE));
+    let stroke_metal = Stroke::new(2.4 * s, titanium);
+    let stroke_cyan = Stroke::new(1.2 * s, cyan);
+    p.add(egui::Shape::line(vec![w1, w2, w3, w4, w5], stroke_metal));
+    p.add(egui::Shape::line(vec![w1, w2, w3, w4, w5], stroke_cyan));
 
-    // Internal robotic joint core
-    let core_r = r * 0.38;
-    p.circle_filled(c, core_r, edge_col);
-    p.circle_filled(c, core_r * 0.75, cyan);
-    p.circle_filled(c, core_r * 0.38, dark);
+    // Geometric R (Right side)
+    let r_top = pos2(c.x + 2.0 * s, c.y - 7.5 * s);
+    let r_bot = pos2(c.x + 2.0 * s, c.y + 7.5 * s);
+    p.line_segment([r_top, r_bot], stroke_metal);
 
-    if edges {
-        let edge = Stroke::new(1.2, edge_col);
-        // Outer contour
-        p.add(egui::Shape::closed_line(vec![p_top, p_tr, p_br, p_bot, p_bl, p_tl], edge));
-        // Robotic joint actuator seams radiating from center
-        p.line_segment([c, p_top], Stroke::new(1.4, edge_col));
-        p.line_segment([c, p_br], Stroke::new(1.4, edge_col));
-        p.line_segment([c, p_bl], Stroke::new(1.4, edge_col));
-        // Cyan actuator indicator nodes on the 3 facets
-        let dot_r = r * 0.12;
-        p.circle_filled(pos2(c.x, c.y - r * 0.6), dot_r, cyan);
-        p.circle_filled(pos2(c.x + r * 0.52, c.y + r * 0.3), dot_r, cyan);
-        p.circle_filled(pos2(c.x - r * 0.52, c.y + r * 0.3), dot_r, cyan);
-    }
+    // R circular actuator head (loop)
+    let loop_center = pos2(c.x + 6.0 * s, c.y - 3.5 * s);
+    let loop_radius = 4.0 * s;
+    p.circle_filled(loop_center, loop_radius, dark);
+    p.circle_stroke(loop_center, loop_radius, Stroke::new(1.8 * s, cyan));
+    p.circle_filled(loop_center, loop_radius * 0.45, titanium);
+
+    // R robotic leg (strut slanting down to bottom right)
+    let leg_start = pos2(c.x + 4.5 * s, c.y + 0.5 * s);
+    let leg_end = pos2(c.x + 11.5 * s, c.y + 7.5 * s);
+    p.line_segment([leg_start, leg_end], stroke_metal);
+    p.line_segment([leg_start, leg_end], stroke_cyan);
 }
 
 pub(crate) fn cross(p: &egui::Painter, r: Rect, s: Stroke) {
