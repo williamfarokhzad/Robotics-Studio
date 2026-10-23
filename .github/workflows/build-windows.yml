@@ -1,0 +1,51 @@
+name: Build Windows Application
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Robotics Studio (Windows x64)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build Robotics Studio desktop
+        run: cargo build --release -p solidcraft
+
+      - name: Stage Release Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist/RoboticsStudio
+          Copy-Item target/release/solidcraft.exe dist/RoboticsStudio/RoboticsStudio.exe
+          Copy-Item run-robotics-studio.bat dist/RoboticsStudio/
+          Copy-Item README.md dist/RoboticsStudio/
+          if (Test-Path assets/branding/logo.png) {
+            New-Item -ItemType Directory -Force -Path dist/RoboticsStudio/assets/branding
+            Copy-Item assets/branding/logo.png dist/RoboticsStudio/assets/branding/
+          }
+          Compress-Archive -Path dist/RoboticsStudio/* -DestinationPath dist/RoboticsStudio-v0.0.1-windows-x64.zip
+
+      - name: Upload Windows Executable Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: RoboticsStudio-v0.0.1-windows-x64
+          path: dist/RoboticsStudio-v0.0.1-windows-x64.zip
+          retention-days: 30
