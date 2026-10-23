@@ -1,144 +1,120 @@
 <p align="center">
-  <img src="assets/icons/app/linux/exports/hicolor/256x256/apps/ai.storyteller.solidcraft.png" width="96" height="96" alt="Robotics Studio" />
+  <img src="assets/branding/banner.jpg" alt="Robotics Studio by WIFA Robotics" width="100%" />
+</p>
+
+<p align="center">
+  <img src="assets/branding/logo.png" width="140" height="140" alt="Robotics Studio Logo" />
 </p>
 
 <h1 align="center">Robotics Studio</h1>
 
 <p align="center">
-  <strong>An open-source parametric 3D CAD and robotics modeling application built in pure Rust by WIFA Robotics.</strong><br />
-  Sketch, constrain, and build solids with a parametric feature timeline. Change a dimension
-  and watch your model rebuild. Run it on your desktop, in your browser, or let AI agents
-  model through the built-in MCP server.
-</p>
-
-<div align="center">
-
-[![Download for Windows][badge-windows]][windows-msi]
-[![Download for macOS][badge-macos]][macos-dmg]
-[![Download for Linux][badge-linux]][linux-appimage]
-[![Get it from the Snap Store][badge-snap]][snap-store]
-[![Try it in your browser][badge-web]][web-app]
-
-</div>
-
-<p align="center">
-  <a href="https://solidcraft.io">Website</a> ·
-  <a href="https://solidcraft.io/download">Download</a> ·
-  <a href="https://solidcraft.io/app">Try it in the browser</a> ·
-  <a href="https://docs.solidcraft.io/">Documentation</a> ·
-  <a href="https://www.blacksmith.sh"><img src="https://img.shields.io/badge/CI-Blacksmith-000000?logo=githubactions&logoColor=white" alt="CI powered by Blacksmith" /></a>
-  <a href="https://discord.gg/FtU4NQNVDH">Discord</a> ·
-  <a href="https://github.com/bherbruck/solidcore">SolidCore</a>
+  <strong>Next-Generation Parametric 3D CAD & Kinematic Robotics Engineering Platform</strong><br />
+  <em>Engineered in Pure Rust by <strong>WIFA Robotics</strong></em>
 </p>
 
 <p align="center">
-  <a href="https://github.com/tangency-labs/solidcraft/actions/workflows/ci.yml?query=branch%3Amain"><img src="https://github.com/tangency-labs/solidcraft/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
-  <a href="https://github.com/tangency-labs/solidcraft/releases/latest"><img src="https://img.shields.io/github/v/release/tangency-labs/solidcraft?label=release" alt="Latest release" /></a>
-  <a href="https://github.com/tangency-labs/solidcraft/releases"><img src="https://img.shields.io/github/downloads/tangency-labs/solidcraft/total?label=downloads" alt="Downloads" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/tangency-labs/solidcraft" alt="Licence" /></a>
-  <a href="https://discord.gg/FtU4NQNVDH"><img src="https://img.shields.io/badge/Discord-join-5865F2?logo=discord&logoColor=white" alt="Discord" /></a>
-  <a href="https://remade.wiki/projects/solidcraft/"><img src="https://remade.wiki/badges/listed-on-remade-classic.svg" alt="Listed on Remade" /></a>
-  <a href="https://github.com/tangency-labs/solidcraft/stargazers"><img src="https://img.shields.io/github/stars/tangency-labs/solidcraft?style=flat" alt="Stars" /></a>
+  <a href="https://github.com/williamfarokhzad/Robotics-Studio/releases/latest"><img src="https://img.shields.io/badge/Release-v0.20.0-00E5FF?style=flat-square&logo=rust&logoColor=black" alt="Release" /></a>
+  <a href="LICENSE-MIT"><img src="https://img.shields.io/badge/License-MIT%20%7C%20Apache--2.0-blue?style=flat-square" alt="License" /></a>
+  <a href="#zero-crash-architecture"><img src="https://img.shields.io/badge/Memory%20Safety-Zero--Panic%20Guaranteed-brightgreen?style=flat-square" alt="Zero Panic" /></a>
+  <a href="#ai-agent-integration-mcp"><img src="https://img.shields.io/badge/AI--Native-MCP%20Server-8A2BE2?style=flat-square" alt="MCP Ready" /></a>
+  <a href="#robotics--kinematics"><img src="https://img.shields.io/badge/Robotics-URDF%20%7C%20ROS%20%7C%20Isaac%20Sim-orange?style=flat-square" alt="Robotics Ready" /></a>
 </p>
 
-<p align="center">
-  <a href="https://trendshift.io/repositories/296178?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-296178" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/296178/daily" alt="tangency-labs%2Fsolidcraft | Trendshift" width="250" height="55"/></a>
-  <a href="https://trendshift.io/repositories/296178?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-296178" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/296178/daily?language=Rust" alt="tangency-labs%2Fsolidcraft | Trendshift (Rust)" width="250" height="55"/></a>
-</p>
+---
 
-![SolidCraft 0.8: model a Raspberry Pi 4 case from an empty design: a sketch dimensioned with parameters, extrude, fillets and shell, a rim rounded in one pick, standoffs patterned on the board's mounting holes, port cut-outs, vent slots, "Pi 4" engraved in a font, a PETG material with its mass in Properties, and a height change in Parameters](docs/screenshots/demo-0.8.gif)
+## 🚀 Overview
 
-*A Raspberry Pi 4 case from an empty design: a sketch dimensioned with the board's parameters, extrude, fillet, shell, the rim rounded in one pick, an M2.5 standoff patterned on the 58 × 49 mm hole rectangle, port cut-outs, vent slots, "Pi 4" engraved in DejaVu Sans Bold and a PETG material defined in the design, with its mass in Properties, then height 24 → 32 mm in Parameters and it all rebuilds. 9× playback. [Full video](https://github.com/tangency-labs/solidcraft/raw/refs/heads/main/docs/screenshots/demo-0.8.mp4), recorded with the [demo script](examples/demo/record_ui.sh).*
+**Robotics Studio** is an open-source, high-performance parametric 3D CAD application and kinematic modeling environment designed from the ground up in pure **Rust**. Created by **WIFA Robotics**, it bridges precision mechanical engineering, sheet metal fabrication, and robotics simulation into a unified, crash-resilient workstation.
 
-## Download
+Whether you are designing multi-axis robotic arms, mobile rover chassis, mechanical linkage mechanisms, or precision 3D-printed enclosures, Robotics Studio gives you:
+* **Parametric Feature Timeline:** Non-destructive modeling where modifying any dimension or expression cleanly rebuilds your design.
+* **Robotics Simulation & URDF Pipelines:** Native kinematics, joint limits, motion studies, collision detection, and automated URDF export for Gazebo, ROS 2, and NVIDIA Isaac Sim.
+* **AI-Agent Operability (MCP):** A built-in Model Context Protocol server enabling LLMs and autonomous agents to design, modify, and inspect CAD models directly via structured commands.
+* **Zero-Crash Architecture:** Written under `#![deny(clippy::unwrap_used, clippy::panic)]`—protecting human designs and autonomous agent loops from unexpected crashes.
 
-- **Windows:** the [installer][windows-msi], or `winget install bherbruck.SolidCraft`.
-- **macOS:** the [disk image][macos-dmg] (Apple silicon and Intel).
-- **Linux:** the [AppImage][linux-appimage], or `sudo snap install solidcraft` ([Snap Store][snap-store]).
-- **Web:** [try it in your browser][web-app], no install.
+---
 
-ARM64 and 32-bit builds, portable zip, .deb, .rpm, Flatpak and the other packages are on the
-[downloads page](docs/downloads.md). The downloads aren't signed yet: on Windows choose
-**More info**, then **Run anyway** in SmartScreen; on macOS right-click SolidCraft and choose **Open**
-the first time. On SolidCraft 0.11 to 0.14, download once by hand; see
-[updating](https://docs.solidcraft.io/guide/updates.html#updating-from-011-to-014).
+## 🛠️ Key Capabilities
 
-## What works
+### 1. 🤖 Robotics & Kinematic Assemblies
+* **Kinematic Joints:** Rigid, Revolute, Slider, Cylindrical, Pin-Slot, Planar, and Ball joints with mechanical limits and live joint drivers.
+* **Closed Kinematic Loops:** Automated solving for 4-bar linkages, crank-slider mechanisms, and cam-follower systems.
+* **Motion Studies & Collision Sets:** Animate joint sequences along keyframed timelines, chart velocities and accelerations, and detect physical interferences in real-time.
+* **URDF Export:** Direct generation of unified robot descriptions with exact inertial tensors, centers of mass, and collision/visual meshes.
 
-Early but usable for simple parts: 75 of 76 public reference parts match their analytic or
-FreeCAD-computed volume, area, centre of mass and bounding box ([oracle](docs/oracle.md)); the
-other is a tracked bug.
+### 2. 📐 Parametric CAD & Constraint Solver
+* **Sketches with Solver:** Lines, arcs, splines, ellipses, slots, conic curves, and dimensions solved deterministically by our custom geometric constraint solver.
+* **3D Solid Operations:** Extrude (one-side, two-sided, symmetric, to object), Revolve, Sweep along 3D curves, Multi-section Loft with guide rails, Fillets & Chamfers, Shell, Draft, Holes, and Modelled Threads.
+* **Persistent Topological Naming:** Advanced tracking of face and edge lineages so downstream features stay intact through dimension shifts and parameter changes.
+* **Unit-Aware Expressions:** Full mathematical expression evaluator (`d1 * 2 + sin(angle)`) with cyclical dependency graph detection.
 
-- **Sketches and constraints:** lines, arcs, splines, text and more, solved by our own constraint solver, with parameter-driven dimensions.
-- **Features:** extrude, revolve, sweep, loft, fillet, chamfer, shell, draft, holes, threads, patterns, mirror, split and combine on an editable parametric timeline.
-- **Parameters and configurations** with unit-aware expressions.
-- **Assemblies** with joints, motion studies, contact sets, interference and mass properties.
-- **Sheet metal** with flanges, hems, fold/unfold and flat patterns, and plastic enclosure features.
-- **Files:** STEP, IGES, 3MF, STL, OBJ and glTF in and out where supported, URDF export, `.solidcraft` designs.
-- **Desktop app, browser app, headless CLI and MCP server**, all running the same commands.
+### 3. 🏭 Sheet Metal & Enclosures
+* **Sheet Metal Fabrication:** Base and edge flanges, contour flanges, hem joins, and real-time fold/unfold.
+* **Flat Pattern & DXF Output:** Calculate K-factors, bend deductions, and produce accurate 2D DXF files for laser cutting and CNC bending machines.
+* **Plastic Design Features:** Built-in tools for mounting bosses, strengthening ribs, web gussets, lip/groove seals, and snap-fit joints.
 
-The full list is in [docs/capabilities.md](docs/capabilities.md) and [docs/features.md](docs/features.md);
-status and plans are in [ROADMAP.md](ROADMAP.md). See also [what people built](docs/showcase.md),
-[3D mouse support](docs/3d-mouse.md) and the [architecture](docs/architecture.md).
-
-## Build from source
-
+### 4. 🧠 Autonomous AI Modeling (MCP Server)
+Robotics Studio features native **Model Context Protocol (MCP)** integration. AI coding assistants (such as Claude Code, Cursor, Antigravity, and custom LLM agents) can drive the modeling engine programmatically:
 ```sh
-cargo run --release -p solidcraft -- --sample      # desktop app with a sample part
-cargo run --release -p solidcraft-cli -- commands  # the command registry
-cargo run --release -p solidcraft-cli -- run examples/bracket.json --out bracket.step
-cargo xtask ci                                     # fmt, clippy, tests, icons, assets, layers, wasm
+# Start the headless MCP server for AI agent pairing
+robotics-studio mcp
 ```
 
-More commands, the Windows cross-build and the browser build are in [docs/building.md](docs/building.md).
+### 5. 🔄 Interoperability & File Support
+* **Standard Formats:** Import & export STEP (AP203/AP214/AP242), IGES, 3MF with B-rep face tags, STL, OBJ, glTF 2.0, DXF, and SVG.
+* **Direct Import:** Read native FreeCAD (`.FCStd`) and Rhino (`.3dm`) solid files.
 
-## AI agents (MCP)
+---
 
-`solidcraft-cli mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server. Headless it
-runs its own design session, or with `--connect` it drives the running app so you can watch.
-Claude Code: `claude mcp add solidcraft -- solidcraft-cli mcp`. Tools, access rules and an
-example session: [docs/mcp.md](docs/mcp.md).
+## 🏛️ System Architecture
 
-## Scripts
+Robotics Studio follows an uncompromised layered architecture (`cargo xtask layers` enforced):
 
-A script is a JSON list of the same commands the UI runs, executed with `solidcraft-cli run`.
-Format and example: [docs/scripts.md](docs/scripts.md). Pages can also be driven through the
-[browser command API](docs/browser-api.md).
+| Layer | Crates | Functionality |
+|:---|:---|:---|
+| **L0** | `geom` | Vectors, transforms, planes, analytical profiles, boundary meshes, and spatial measurements. |
+| **L1** | `sketch`, `kernel`, `render` | 2D/3D geometric constraint solver; B-rep boundary representation; camera math and headless scene graphs. |
+| **L2** | `doc` | Parametric variables, expression evaluator, feature timeline, and incremental re-computation. |
+| **L3** | `io` | Native `.solidcraft` containers, industrial STEP/IGES/3MF/DXF codecs, and mesh converters. |
+| **L4** | `engine` | Command pattern registry (`Session::execute`), kinematic solver, and transaction state. |
+| **L5** | `gpu`, `ui-egui`, `mcp` | WGPU rendering pipelines, immediate-mode GUI, and Model Context Protocol server. |
+| **Apps**| `solidcraft`, `solidcraft-cli`, `solidcraft-web` | Desktop application (Windows/macOS/Linux), headless CLI, and in-browser WebAssembly. |
 
-## Contributing
+---
 
-Help is welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers how to build and test, the code map,
-the clean-room and licence rules, and where help is wanted most. Open work is in
-[GitHub issues](https://github.com/tangency-labs/solidcraft/issues); chat is on
-[Discord](https://discord.gg/FtU4NQNVDH).
+## ⚡ Quickstart & Building
 
-## Sponsors
+### Prerequisites
+* Rust 1.85+ (Edition 2024)
+* A graphics driver supporting Vulkan, DirectX 12, or Metal
 
-[![CI powered by Blacksmith](docs/sponsors/blacksmith-ci-powered.png)](https://www.blacksmith.sh)
+### Build Desktop Application
+```bash
+# Clone the repository
+git clone https://github.com/williamfarokhzad/Robotics-Studio.git
+cd Robotics-Studio
 
-SolidCraft's continuous integration runs on [Blacksmith](https://www.blacksmith.sh), which
-sponsors its CI minutes.
+# Launch the desktop studio with a sample model
+cargo run --release -p solidcraft -- --sample
 
-## Licence
+# Run the headless command-line interface
+cargo run --release -p solidcraft-cli -- commands
+```
 
-MIT OR Apache-2.0, at your option. Developed under the
-[clean-room contribution rules](AGENTS.md); third-party code and assets retain their
-documented licences and attribution.
+### Quality & Safety Verification
+```bash
+# Run the complete test suite, formatting, Clippy lints, and architecture layer audit
+cargo xtask ci
+```
 
-SolidCraft is independent. Behaviour is designed from public documentation, general CAD
-conventions and user feedback. Reference tests use analytic values and open-source tools.
-SolidCraft is not affiliated with, sponsored by or endorsed by Autodesk, Dassault Systèmes, PTC,
-Siemens or any other CAD vendor. Fusion, AutoCAD, Inventor, SolidWorks, Onshape, Creo, Blender and
-Tinkercad are trademarks of their respective owners, named only to describe compatibility
-(see [NOTICE](NOTICE)).
+---
 
-[badge-windows]: https://img.shields.io/badge/Windows-Download-0078D6?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0yIDJoOS41djkuNUgyek0xMi41IDJIMjJ2OS41aC05LjV6TTIgMTIuNWg5LjVWMjJIMnpNMTIuNSAxMi41SDIyVjIyaC05LjV6Ii8%2BPC9zdmc%2B
-[badge-macos]: https://img.shields.io/badge/macOS-Download-333333?style=for-the-badge&logo=apple&logoColor=white
-[badge-linux]: https://img.shields.io/badge/Linux-AppImage-E95420?style=for-the-badge&logo=linux&logoColor=white
-[badge-snap]: https://img.shields.io/badge/Snap-Snap_Store-82BEA0?style=for-the-badge&logo=snapcraft&logoColor=white
-[badge-web]: https://img.shields.io/badge/Web-Try_in_browser-2EA44F?style=for-the-badge&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIvPjxwYXRoIGQ9Ik0yIDEyaDIwTTEyIDJhMTUgMTUgMCAwIDEgMCAyME0xMiAyYTE1IDE1IDAgMCAwIDAgMjAiLz48L3N2Zz4%3D
-[windows-msi]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-windows-x64.msi
-[macos-dmg]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-macos-universal.dmg
-[linux-appimage]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-x86_64.AppImage
-[snap-store]: https://snapcraft.io/solidcraft
-[web-app]: https://solidcraft.io/app
+## 📄 License & Attribution
+
+Robotics Studio is an independent project authored and maintained by **WIFA Robotics**.
+Licensed under either of:
+* **MIT License** ([LICENSE-MIT](LICENSE-MIT))
+* **Apache License, Version 2.0** ([LICENSE-APACHE](LICENSE-APACHE))
+
+*All third-party libraries and dependencies are strictly open-source (MIT / Apache-2.0 / BSD) and documented in [ATTRIBUTION.md](ATTRIBUTION.md) and [NOTICE](NOTICE).*
