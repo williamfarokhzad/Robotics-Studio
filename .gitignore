@@ -10,3 +10,9 @@ __pycache__/
 
 # cargo-mutants output (docs/mutation-testing.md)
 mutants.out*/
+
+# Windows SDK / xwin caches
+.xwin/
+.xwin-cache/
+.msvc-libs/
+
