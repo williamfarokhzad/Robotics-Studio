@@ -11,6 +11,12 @@ set "PATH=%CARGO_PATH%;%PATH%"
 
 cd /d "%~dp0"
 
+if exist "RoboticsStudio.exe" (
+    echo Starting Robotics Studio...
+    start "" "RoboticsStudio.exe" --sample
+    exit /b 0
+)
+
 if exist "target\x86_64-pc-windows-msvc\release\solidcraft.exe" (
     echo Starting Robotics Studio...
     start "" "target\x86_64-pc-windows-msvc\release\solidcraft.exe" --sample

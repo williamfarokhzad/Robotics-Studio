@@ -16,3 +16,7 @@ mutants.out*/
 .xwin-cache/
 .msvc-libs/
 
+# Binaries
+*.exe
+
+
