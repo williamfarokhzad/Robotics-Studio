@@ -24,8 +24,11 @@
   <link data-trunk rel="copy-file" href="../../assets/fonts/biz-udp-gothic/OFL.txt" data-target-path="fonts" />
   <link data-trunk rel="css" href="../../assets/styles/web/loading.css" />
   <link data-trunk rel="copy-file" href="../../assets/styles/web/loading-logo.svg" />
+  <link data-trunk rel="copy-file" href="../../assets/styles/web/loading-animation.mp4" />
+  <link data-trunk rel="copy-file" href="../../assets/styles/web/loading-animation.webp" />
+  <link data-trunk rel="copy-file" href="../../assets/styles/web/loading-poster.jpg" />
   <!-- Installable as an app (manifest.webmanifest); the icons are the Linux exports of the app mark. -->
-  <meta name="theme-color" content="#343840">
+  <meta name="theme-color" content="#171a22">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/32x32/ai.storyteller.solidcraft.png">
   <link rel="apple-touch-icon" href="icons/256x256/ai.storyteller.solidcraft.png">
@@ -36,7 +39,13 @@
 </head>
 <body>
   <canvas id="solidcraft_canvas"></canvas>
-  <div id="solidcraft_loading" role="status"><img src="loading-logo.svg" alt=""><span class="sr-only">Loading Robotics Studio&hellip;</span></div>
+  <div id="solidcraft_loading" role="status">
+    <video autoplay loop muted playsinline poster="loading-poster.jpg" width="1280" height="720">
+      <source src="loading-animation.mp4" type="video/mp4">
+      <img src="loading-animation.webp" alt="WIFA ROBOTICS - Robotics Studio">
+    </video>
+    <span class="sr-only">Loading Robotics Studio&hellip;</span>
+  </div>
   <script>
     // Offline use and updates (sw.js; written into release builds by `cargo xtask web-offline`).
     if ("serviceWorker" in navigator) {

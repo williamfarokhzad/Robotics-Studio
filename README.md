@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/williamfarokhzad/Robotics-Studio/releases/latest"><img src="https://img.shields.io/badge/Release-v0.0.2-00E5FF?style=flat-square&logo=rust&logoColor=black" alt="Release" /></a>
+  <a href="https://github.com/williamfarokhzad/Robotics-Studio/releases/latest"><img src="https://img.shields.io/badge/Release-v0.0.3-00E5FF?style=flat-square&logo=rust&logoColor=black" alt="Release" /></a>
   <a href="LICENSE-MIT"><img src="https://img.shields.io/badge/License-MIT%20%7C%20Apache--2.0-blue?style=flat-square" alt="License" /></a>
   <a href="#zero-crash-architecture"><img src="https://img.shields.io/badge/Memory%20Safety-Zero--Panic%20Guaranteed-brightgreen?style=flat-square" alt="Zero Panic" /></a>
   <a href="#ai-agent-integration-mcp"><img src="https://img.shields.io/badge/AI--Native-MCP%20Server-8A2BE2?style=flat-square" alt="MCP Ready" /></a>

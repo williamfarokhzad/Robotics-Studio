@@ -41,11 +41,11 @@ jobs:
             New-Item -ItemType Directory -Force -Path dist/RoboticsStudio/assets/branding
             Copy-Item assets/branding/logo.png dist/RoboticsStudio/assets/branding/
           }
-          Compress-Archive -Path dist/RoboticsStudio/* -DestinationPath dist/RoboticsStudio-v0.0.2-windows-x64.zip
+          Compress-Archive -Path dist/RoboticsStudio/* -DestinationPath dist/RoboticsStudio-v0.0.3-windows-x64.zip
 
       - name: Upload Windows Executable Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RoboticsStudio-v0.0.2-windows-x64
-          path: dist/RoboticsStudio-v0.0.2-windows-x64.zip
+          name: RoboticsStudio-v0.0.3-windows-x64
+          path: dist/RoboticsStudio-v0.0.3-windows-x64.zip
           retention-days: 30
