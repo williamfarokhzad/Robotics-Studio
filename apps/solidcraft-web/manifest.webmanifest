@@ -1,7 +1,7 @@
 {
-  "name": "SolidCraft",
-  "short_name": "SolidCraft",
-  "description": "Open-source parametric CAD built in Rust.",
+  "name": "Robotics Studio",
+  "short_name": "Robotics Studio",
+  "description": "Robotics Studio: Open-source parametric CAD built in Rust by WIFA Robotics.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
