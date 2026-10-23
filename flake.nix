@@ -157,8 +157,8 @@
           '';
 
           meta = {
-            description = "Rust-native parametric 3D CAD app";
-            homepage = "https://github.com/bherbruck/solidcraft";
+            description = "Robotics Studio: Rust-native parametric 3D CAD & kinematics platform by WIFA Robotics";
+            homepage = "https://github.com/williamfarokhzad/Robotics-Studio";
             license = with pkgs.lib.licenses; [
               mit
               asl20

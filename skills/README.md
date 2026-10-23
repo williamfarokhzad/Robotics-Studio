@@ -26,15 +26,15 @@ They are written for SolidCraft 0.8 and later; `solidcraft-mechanisms` for `main
 Claude Code, for all projects:
 
 ```sh
-git clone --depth 1 https://github.com/bherbruck/solidcraft
-cp -r solidcraft/skills/solidcraft-* ~/.claude/skills/
+git clone --depth 1 https://github.com/williamfarokhzad/Robotics-Studio
+cp -r Robotics-Studio/skills/solidcraft-* ~/.claude/skills/
 ```
 
 Windows (PowerShell):
 
 ```powershell
-git clone --depth 1 https://github.com/bherbruck/solidcraft
-Copy-Item -Recurse solidcraft\skills\solidcraft-* $HOME\.claude\skills\
+git clone --depth 1 https://github.com/williamfarokhzad/Robotics-Studio
+Copy-Item -Recurse Robotics-Studio\skills\solidcraft-* $HOME\.claude\skills\
 ```
 
 - **One project only:** copy the folders into that project's `.claude/skills/` instead.

@@ -46,4 +46,4 @@ In `$SKILL/scripts/`:
 - `sketch.polygon.circumscribed` with 6 sides and `angle: 0` puts vertices up and down and flat sides facing ±x.
 - A pattern of a join or cut feature repeats that join or cut. Put every join before the cuts that must stay open: a later join fills them.
 - When a timeline feature fails, `solidcraft-cli run` writes nothing and the error names the feature. `run --in` and `snapshot` also accept a command script in place of a design.
-- To build in the user's open app, see the bridged mode in [docs/mcp.md](https://github.com/bherbruck/solidcraft/blob/main/docs/mcp.md): the app and the server both start with extra flags, so ask the user.
+- To build in the user's open app, see the bridged mode in [docs/mcp.md](https://github.com/williamfarokhzad/Robotics-Studio/blob/main/docs/mcp.md): the app and the server both start with extra flags, so ask the user.

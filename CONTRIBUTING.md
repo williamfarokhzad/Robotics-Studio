@@ -1,8 +1,8 @@
-# Contributing to SolidCraft
+# Contributing to Robotics Studio
 
-SolidCraft is an open-source parametric 3D CAD app written in pure Rust.
-You sketch on a plane, constrain the sketch, turn profiles into solids, and
-change a parameter to watch the timeline rebuild. It runs as a desktop app (Windows, Linux), in
+Robotics Studio is an open-source parametric 3D CAD and robotics platform written in pure Rust by WIFA Robotics.
+You sketch on a plane, constrain the sketch, turn profiles into solids, assemble kinematic joints, and
+change parameters to watch the timeline rebuild. It runs as a desktop app (Windows, Linux), in
 the browser (wasm + WebGPU/WebGL2), headless from a CLI, and as an MCP server that AI agents can
 model with.
 
@@ -13,17 +13,6 @@ needed most.
 Before choosing a task, check the [command inventory](docs/features.md) and
 [roadmap](ROADMAP.md) for implemented capabilities and current priorities.
 
-Questions, ideas or want to say what you're working on? Join the [Discord](https://discord.gg/FtU4NQNVDH).
-
-## Kernel work is paused
-
-We're evaluating a new geometry kernel. Until that's decided, please don't open issues, pull
-requests or discussions about kernel work: booleans, fillets, chamfers, shell, offsets, sweeps and
-lofts, threads and holes, STEP/IGES import and export, tessellation, or anything else that changes
-`crates/kernel/`. The pinned issue on the tracker explains it. New ones get the `kernel-paused`
-label (`.github/workflows/kernel-paused.yml`) and a maintainer answers them. Crashes and data loss
-are still taken as issues, and everything outside the kernel carries on as normal.
-
 ## Get it running (about 10 minutes on a fast machine)
 
 You need stable Rust 1.95 or newer (required by egui/eframe 0.36). For the web
@@ -31,18 +20,17 @@ build you also need `rustup target add wasm32-unknown-unknown` and [`trunk`](htt
 ([documentation](https://trunk-rs.github.io/trunk/)).
 
 ```sh
-git clone https://github.com/tangency-labs/solidcraft && cd solidcraft
+git clone https://github.com/williamfarokhzad/Robotics-Studio && cd Robotics-Studio
 cargo run --release -p solidcraft -- --sample      # desktop app with a sample part
 cargo xtask test                                   # unit, engine and UI-scenario tests
 cargo xtask ci                                     # everything a PR must pass (see below)
 ```
 
-SolidCraft is the product, repository, Cargo package and executable name.
+Robotics Studio is the product, repository, and platform name.
 Build the desktop app with `cargo build --release -p solidcraft`, or the CLI with
 `cargo build --release -p solidcraft-cli`. Run the CLI with
 `cargo run --release -p solidcraft-cli -- commands` (or `target/release/solidcraft-cli commands`
-after building). The old name appears only in the compatibility shims listed in
-[docs/compatibility.md](docs/compatibility.md); don't add new uses of it.
+after building).
 
 Web: `cd apps/solidcraft-web && trunk serve --release`, then open the printed URL (`?sample`
 opens the sample part, `?webgl` forces WebGL2). Saving and opening files in the browser needs

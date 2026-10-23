@@ -25,18 +25,16 @@ use crate::theme::Tokens;
 use crate::ui_kit;
 
 /// The repository releases come from.
-pub const REPO: &str = "bherbruck/solidcraft";
+pub const REPO: &str = "williamfarokhzad/Robotics-Studio";
 /// The one request an update check makes.
-pub const LATEST_API: &str = "https://api.github.com/repos/bherbruck/solidcraft/releases/latest";
+pub const LATEST_API: &str = "https://api.github.com/repos/williamfarokhzad/Robotics-Studio/releases/latest";
 /// Where Download goes when no package fits this installation.
-pub const RELEASES_PAGE: &str = "https://github.com/bherbruck/solidcraft/releases/latest";
-/// Release pages and assets must be on GitHub, under this repository. The repository is moving
-/// to the `tangency-labs` organisation, so releases may name either owner (the API request stays
-/// on the old name, which GitHub redirects after a transfer).
-const RELEASE_PREFIXES: [&str; 2] = ["https://github.com/bherbruck/solidcraft/releases/", "https://github.com/tangency-labs/solidcraft/releases/"];
+pub const RELEASES_PAGE: &str = "https://github.com/williamfarokhzad/Robotics-Studio/releases/latest";
+/// Release pages and assets must be on GitHub, under this repository.
+const RELEASE_PREFIXES: [&str; 1] = ["https://github.com/williamfarokhzad/Robotics-Studio/releases/"];
 
-/// A release page or asset URL: github.com, one of the two owners, exactly `solidcraft`, then
-/// `/releases/` (the trailing slash rules out look-alike names such as `solidcraft-evil`).
+/// A release page or asset URL: github.com, exactly `Robotics-Studio`, then
+/// `/releases/` (the trailing slash rules out look-alike names).
 fn is_release_url(url: &str) -> bool {
     RELEASE_PREFIXES.iter().any(|p| url.starts_with(p))
 }

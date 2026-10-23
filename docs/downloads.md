@@ -24,21 +24,20 @@ The downloads aren't signed yet. On Windows, if SmartScreen warns you, choose **
 releases moved to a new address. Download the new version once from the links above; after that,
 updating from inside SolidCraft works again ([details](https://docs.solidcraft.io/guide/updates.html#updating-from-011-to-014)).
 
-Older versions, checksums and other formats are on the [releases page](https://github.com/tangency-labs/solidcraft/releases).
-Install details, upgrading from earlier builds and building from source are in
+Older versions, checksums and other formats are on the [releases page](https://github.com/williamfarokhzad/Robotics-Studio/releases).
+Install details, upgrading from earlier builds and building from source are in [README](https://github.com/williamfarokhzad/Robotics-Studio#readme).
 
-[Getting started](https://docs.solidcraft.io/guide/getting-started.html).
-[windows-msi]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-windows-x64.msi
-[windows-arm64-msi]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-windows-arm64.msi
-[windows-x86-msi]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-windows-x86.msi
-[windows-portable]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-windows-x64-portable.zip
-[macos-dmg]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-macos-universal.dmg
-[linux-appimage]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-x86_64.AppImage
-[linux-deb]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-x86_64.deb
-[linux-rpm]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-x86_64.rpm
-[linux-arm64-appimage]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-aarch64.AppImage
-[linux-arm64-deb]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-aarch64.deb
-[linux-arm64-rpm]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-aarch64.rpm
-[linux-snap]: https://github.com/tangency-labs/solidcraft/releases/latest/download/solidcraft-linux-x86_64.snap
+[windows-msi]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-windows-x64.msi
+[windows-arm64-msi]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-windows-arm64.msi
+[windows-x86-msi]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-windows-x86.msi
+[windows-portable]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-windows-x64-portable.zip
+[macos-dmg]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-macos-universal.dmg
+[linux-appimage]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-linux-x86_64.AppImage
+[linux-deb]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-linux-x86_64.deb
+[linux-rpm]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-linux-x86_64.rpm
+[linux-arm64-appimage]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-linux-aarch64.AppImage
+[linux-arm64-deb]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-linux-aarch64.deb
+[linux-arm64-rpm]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-linux-aarch64.rpm
+[linux-snap]: https://github.com/williamfarokhzad/Robotics-Studio/releases/latest/download/robotics-studio-linux-x86_64.snap
 [snap-store]: https://snapcraft.io/solidcraft
 [web-app]: https://solidcraft.io/app

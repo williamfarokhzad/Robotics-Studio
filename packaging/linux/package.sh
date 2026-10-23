@@ -136,7 +136,7 @@ if has appimage; then
   # Update information: AppImageUpdate and the like fetch only the changed blocks of a newer
   # release through the .zsync published next to each AppImage. `latest` is the newest published
   # release that is not a pre-release.
-  REPO="${GITHUB_REPOSITORY:-bherbruck/solidcraft}"
+  REPO="${GITHUB_REPOSITORY:-williamfarokhzad/Robotics-Studio}"
   UPDATE_INFO="gh-releases-zsync|${REPO%%/*}|${REPO#*/}|latest|solidcraft-*-linux-$ARCH.AppImage.zsync"
   # Extract-and-run: works without FUSE (containers, CI). With zsyncmake on the host appimagetool
   # also writes the .zsync, into its working directory, hence the cd.

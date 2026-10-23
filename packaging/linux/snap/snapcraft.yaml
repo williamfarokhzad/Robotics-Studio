@@ -24,10 +24,10 @@ description: |
   The command-line tool is `solidcraft.cli` (for example `solidcraft.cli mcp`).
 adopt-info: solidcraft
 license: MIT OR Apache-2.0
-contact: https://github.com/bherbruck/solidcraft/issues
-website: https://docs.solidcraft.io/
-source-code: https://github.com/bherbruck/solidcraft
-issues: https://github.com/bherbruck/solidcraft/issues
+contact: https://github.com/williamfarokhzad/Robotics-Studio/issues
+website: https://github.com/williamfarokhzad/Robotics-Studio
+source-code: https://github.com/williamfarokhzad/Robotics-Studio
+issues: https://github.com/williamfarokhzad/Robotics-Studio/issues
 icon: stage/share/icons/hicolor/512x512/apps/ai.storyteller.solidcraft.png
 base: core24
 grade: stable
