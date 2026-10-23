@@ -1,7 +1,7 @@
 @echo off
 title Robotics Studio - WIFA Robotics
 echo ========================================================
-echo           Launching Robotics Studio v0.0.1
+echo           Launching Robotics Studio v0.0.2
 echo                 by WIFA Robotics
 echo ========================================================
 echo.
