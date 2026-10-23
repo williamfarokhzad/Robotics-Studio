@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 отключает",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Откройте черновик на GitHub ниже, затем вставьте отчёт, скопированный в буфер обмена.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Откройте черновик на GitHub ниже. Заголовок и отчёт будут заполнены автоматически.",
@@ -304,6 +304,7 @@
   "Revert Position": "Вернуть положение",
   "Review the report and screenshot before opening GitHub.": "Проверьте отчёт и скриншот перед открытием GitHub.",
   "Rim Edge": "Кромка обода",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio закрылся до сохранения этих дизайнов. Можно открыть последнюю автосохранённую версию.",
   "Roll History Marker Here": "Переместить маркер истории сюда",
   "Round": "Круглая",
   "Rule": "Правило",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "Плоскость эскиза не привязана к грани тела.",
   "Sketch points": "Точки эскиза",
   "Slot width": "Ширина паза",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio закрылся до сохранения этих дизайнов. Можно открыть последнюю автосохранённую версию.",
   "Specialise": "Специализировать",
   "Speed": "Скорость",
   "Stand it up": "Поставить вертикально",

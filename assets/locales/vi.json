@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0: tắt tính năng này",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Mở bản nháp GitHub bên dưới, sau đó dán báo cáo đã sao chép vào bộ nhớ tạm.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Mở bản nháp GitHub bên dưới. Tiêu đề và báo cáo sẽ được tự động điền.",
@@ -305,6 +305,7 @@
   "Revert Position": "Hoàn nguyên vị trí",
   "Review the report and screenshot before opening GitHub.": "Xem lại báo cáo và ảnh chụp màn hình trước khi mở GitHub.",
   "Rim Edge": "Cạnh mép vành",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio đã đóng trước khi các thiết kế này được lưu. Bạn có thể mở bản tự động lưu gần nhất của chúng.",
   "Roll History Marker Here": "Cuộn mốc lịch sử tới đây",
   "Round": "Bo tròn",
   "Rule": "Quy tắc",
@@ -342,7 +343,6 @@
   "Sketch plane has no body-face attachment.": "Mặt phẳng phác thảo không có liên kết với bề mặt thân khối.",
   "Sketch points": "Điểm phác thảo",
   "Slot width": "Bề rộng rãnh then",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio đã đóng trước khi các thiết kế này được lưu. Bạn có thể mở bản tự động lưu gần nhất của chúng.",
   "Specialise": "Chuyên biệt hóa",
   "Speed": "Tốc độ",
   "Stand it up": "Dựng đứng đối tượng",

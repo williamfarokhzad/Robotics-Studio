@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 îl dezactivează",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Deschideți ciorna GitHub de mai jos, apoi lipiți raportul copiat în clipboard.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Deschideți ciorna GitHub de mai jos. Titlul și raportul vor fi completate automat.",
@@ -304,6 +304,7 @@
   "Revert Position": "Revino la poziție",
   "Review the report and screenshot before opening GitHub.": "Verificați raportul și captura de ecran înainte de a deschide GitHub.",
   "Rim Edge": "Muchie de margine",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio s-a închis înainte ca aceste proiecte să fie salvate. Ultima lor salvare automată poate fi deschisă.",
   "Roll History Marker Here": "Mută aici marcajul de istoric",
   "Round": "Rotunjit",
   "Rule": "Regulă",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "Planul schiței nu are atașare la fața unui corp.",
   "Sketch points": "Punctele schiței",
   "Slot width": "Lățime canal",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio s-a închis înainte ca aceste proiecte să fie salvate. Ultima lor salvare automată poate fi deschisă.",
   "Specialise": "Specializează",
   "Speed": "Viteză",
   "Stand it up": "Ridică-l în picioare",

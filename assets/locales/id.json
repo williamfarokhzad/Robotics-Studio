@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 menonaktifkannya",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Buka draf GitHub di bawah, lalu tempel laporan yang disalin ke papan klip Anda.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Buka draf GitHub di bawah. Judul dan laporan Anda akan terisi otomatis.",
@@ -304,6 +304,7 @@
   "Revert Position": "Kembalikan Posisi",
   "Review the report and screenshot before opening GitHub.": "Tinjau laporan dan tangkapan layar sebelum membuka GitHub.",
   "Rim Edge": "Tepi Rim",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio tertutup sebelum desain ini disimpan. Simpan otomatis terakhirnya dapat dibuka.",
   "Roll History Marker Here": "Pindahkan Penanda Riwayat ke Sini",
   "Round": "Bulat",
   "Rule": "Aturan",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "Bidang sketsa tidak memiliki lampiran muka bodi.",
   "Sketch points": "Titik sketsa",
   "Slot width": "Lebar slot",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio tertutup sebelum desain ini disimpan. Simpan otomatis terakhirnya dapat dibuka.",
   "Specialise": "Spesialisasikan",
   "Speed": "Kecepatan",
   "Stand it up": "Tegakkan",

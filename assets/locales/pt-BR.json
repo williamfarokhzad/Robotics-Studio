@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 desativa",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Abra o rascunho do GitHub abaixo e cole o relatório copiado para a área de transferência.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Abra o rascunho do GitHub abaixo. O título e o relatório serão preenchidos.",
@@ -305,6 +305,7 @@
   "Revert Position": "Reverter posição",
   "Review the report and screenshot before opening GitHub.": "Revise o relatório e a captura de tela antes de abrir o GitHub.",
   "Rim Edge": "Aresta da borda",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "O Robotics Studio fechou antes de estes projetos serem salvos. O último salvamento automático deles pode ser aberto.",
   "Roll History Marker Here": "Mover o marcador do histórico para cá",
   "Round": "Arredondado",
   "Rule": "Regra",
@@ -342,7 +343,6 @@
   "Sketch plane has no body-face attachment.": "O plano do esboço não está fixado a uma face de corpo.",
   "Sketch points": "Pontos do esboço",
   "Slot width": "Largura do rasgo",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "O Robotics Studio fechou antes de estes projetos serem salvos. O último salvamento automático deles pode ser aberto.",
   "Specialise": "Especializar",
   "Speed": "Velocidade",
   "Stand it up": "Colocar em pé",

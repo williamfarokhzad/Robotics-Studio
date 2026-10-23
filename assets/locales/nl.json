@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 schakelt het uit",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Open hieronder het GitHub-concept en plak het naar het klembord gekopieerde rapport.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Open hieronder het GitHub-concept. Uw titel en rapport worden vooraf ingevuld.",
@@ -304,6 +304,7 @@
   "Revert Position": "Positie terugzetten",
   "Review the report and screenshot before opening GitHub.": "Controleer het rapport en de schermafbeelding voordat u GitHub opent.",
   "Rim Edge": "Rand van rand",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio is gesloten voordat deze ontwerpen zijn opgeslagen. Hun laatste automatische opslag kan worden geopend.",
   "Roll History Marker Here": "Terugdraaimarkering hier plaatsen",
   "Round": "Afronden",
   "Rule": "Regel",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "Het schetsvlak heeft geen bevestiging aan een lichaamsvlak.",
   "Sketch points": "Schetspunten",
   "Slot width": "Sleufbreedte",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio is gesloten voordat deze ontwerpen zijn opgeslagen. Hun laatste automatische opslag kan worden geopend.",
   "Specialise": "Specialiseren",
   "Speed": "Snelheid",
   "Stand it up": "Rechtop zetten",

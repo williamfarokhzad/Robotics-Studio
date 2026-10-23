@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "A 0 kikapcsolja",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Nyissa meg az alábbi GitHub-vázlatot, majd illessze be a vágólapra másolt jelentést.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Nyissa meg az alábbi GitHub-vázlatot. A cím és a jelentés előre ki lesz töltve.",
@@ -304,6 +304,7 @@
   "Revert Position": "Pozíció visszaállítása",
   "Review the report and screenshot before opening GitHub.": "Nyitás előtt tekintse át a jelentést és a képernyőképet.",
   "Rim Edge": "Peremél",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "A Robotics Studio bezárult, mielőtt ezek a tervek mentve lettek volna. Az utolsó automatikus mentésük megnyitható.",
   "Roll History Marker Here": "Előzménymarker ide görgetése",
   "Round": "Kerekítés",
   "Rule": "Szabály",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "A vázlatsíknak nincs testlap-rögzítése.",
   "Sketch points": "Vázlatpontok",
   "Slot width": "Horony szélessége",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "A Robotics Studio bezárult, mielőtt ezek a tervek mentve lettek volna. Az utolsó automatikus mentésük megnyitható.",
   "Specialise": "Specializálás",
   "Speed": "Sebesség",
   "Stand it up": "Felállítás",

@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 disattiva la funzione",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Apri la bozza su GitHub qui sotto, poi incolla la segnalazione copiata negli appunti.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Apri la bozza su GitHub qui sotto. Il titolo e la segnalazione saranno compilati.",
@@ -308,6 +308,7 @@
   "Revert Position": "Ripristina posizione",
   "Review the report and screenshot before opening GitHub.": "Controlla la segnalazione e la schermata prima di aprire GitHub.",
   "Rim Edge": "Spigolo del bordo",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio si è chiuso prima del salvataggio di questi progetti. È possibile aprire il loro ultimo salvataggio automatico.",
   "Roll History Marker Here": "Sposta qui il marcatore della cronologia",
   "Round": "Arrotondato",
   "Rule": "Regola",
@@ -345,7 +346,6 @@
   "Sketch plane has no body-face attachment.": "Il piano dello schizzo non è collegato a una faccia di un corpo.",
   "Sketch points": "Punti dello schizzo",
   "Slot width": "Larghezza dell'asola",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio si è chiuso prima del salvataggio di questi progetti. È possibile aprire il loro ultimo salvataggio automatico.",
   "Specialise": "Specializza",
   "Speed": "Velocità",
   "Stand it up": "Raddrizza",

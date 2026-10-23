@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 表示關閉",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. 點擊下方按鈕開啟 GitHub 草稿，然後貼上已複製到剪貼簿的報告。",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. 點擊下方按鈕開啟 GitHub 草稿。標題和報告將自動填入。",
@@ -304,6 +304,7 @@
   "Revert Position": "還原位置",
   "Review the report and screenshot before opening GitHub.": "開啟 GitHub 前請審閱報告和截圖。",
   "Rim Edge": "輪緣邊",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio 在這些設計儲存前已關閉。可以開啟它們的上次自動儲存。",
   "Roll History Marker Here": "將歷程標記滾動到此處",
   "Round": "圓角",
   "Rule": "規則",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "草圖平面沒有實體面附著。",
   "Sketch points": "草圖點",
   "Slot width": "槽寬",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio 在這些設計儲存前已關閉。可以開啟它們的上次自動儲存。",
   "Specialise": "專用操作",
   "Speed": "速度",
   "Stand it up": "將其立起",

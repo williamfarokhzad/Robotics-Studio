@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 schaltet es aus",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Unten den GitHub-Entwurf öffnen und den kopierten Bericht aus der Zwischenablage einfügen.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Unten den GitHub-Entwurf öffnen. Titel und Bericht werden vorausgefüllt.",
@@ -385,6 +385,7 @@
   "Ribs": "Rippen",
   "Rim Edge": "Randkante",
   "Ring of tools on the right button": "Werkzeugring auf der rechten Maustaste",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio wurde beendet, bevor diese Designs gespeichert wurden. Ihr letzter Autosave kann geöffnet werden.",
   "Roll Back Here": "Hierher zurücksetzen",
   "Roll History Marker Here": "Verlaufsmarkierung hierher verschieben",
   "Round": "Rund",
@@ -428,7 +429,6 @@
   "Sketch plane has no body-face attachment.": "Die Skizzenebene hat keine Anbindung an eine Körperfläche.",
   "Sketch points": "Skizzenpunkte",
   "Slot width": "Langlochbreite",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio wurde beendet, bevor diese Designs gespeichert wurden. Ihr letzter Autosave kann geöffnet werden.",
   "Specialise": "Spezialisieren",
   "Speed": "Geschwindigkeit",
   "Splitting tool": "Trennwerkzeug",

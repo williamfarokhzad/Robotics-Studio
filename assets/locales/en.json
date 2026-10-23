@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 turns it off",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Open GitHub draft below, then paste the report copied to your clipboard.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Open GitHub draft below. Your title and report will be filled in.",
@@ -7,7 +7,6 @@
   "3. Click Submit new issue on GitHub to send your report.": "3. Click Submit new issue on GitHub to send your report.",
   "A new configuration, a copy of the active one": "A new configuration, a copy of the active one",
   "ARRANGE": "ARRANGE",
-  "About Robotics Studio": "About Robotics Studio",
   "About Robotics Studio": "About Robotics Studio",
   "Acceleration": "Acceleration",
   "Access": "Access",
@@ -400,6 +399,7 @@
   "Ribs": "Ribs",
   "Rim Edge": "Rim Edge",
   "Ring of tools on the right button": "Ring of tools on the right button",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio closed before these designs were saved. Their last autosave can be opened.",
   "Roll Back Here": "Roll Back Here",
   "Roll History Marker Here": "Roll History Marker Here",
   "Round": "Round",
@@ -445,7 +445,6 @@
   "Sketch plane has no body-face attachment.": "Sketch plane has no body-face attachment.",
   "Sketch points": "Sketch points",
   "Slot width": "Slot width",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio closed before these designs were saved. Their last autosave can be opened.",
   "Specialise": "Specialise",
   "Speed": "Speed",
   "Splitting tool": "Splitting tool",

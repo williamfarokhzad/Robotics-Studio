@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 slår det fra",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Åbn GitHub-kladden nedenfor, og indsæt rapporten fra udklipsholderen.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Åbn GitHub-kladden nedenfor. Titel og rapport udfyldes automatisk.",
@@ -305,6 +305,7 @@
   "Revert Position": "Tilbagefør position",
   "Review the report and screenshot before opening GitHub.": "Gennemgå rapport og skærmbillede, før du åbner GitHub.",
   "Rim Edge": "Randkant",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio lukkede, før disse designs blev gemt. Den seneste automatiske lagring kan åbnes.",
   "Roll History Marker Here": "Flyt tilbagerulningsmarkør hertil",
   "Round": "Rund",
   "Rule": "Regel",
@@ -342,7 +343,6 @@
   "Sketch plane has no body-face attachment.": "Skitseplanet er ikke tilknyttet en flade på et emne.",
   "Sketch points": "Skitsepunkter",
   "Slot width": "Slidsbredde",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio lukkede, før disse designs blev gemt. Den seneste automatiske lagring kan åbnes.",
   "Specialise": "Specialisér",
   "Speed": "Hastighed",
   "Stand it up": "Stil op",

@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 değeri kapatır",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Aşağıdaki GitHub taslağını açın, ardından panoya kopyalanan raporu yapıştırın.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Aşağıdaki GitHub taslağını açın. Başlığınız ve raporunuz otomatik olarak doldurulur.",
@@ -304,6 +304,7 @@
   "Revert Position": "Konumu geri al",
   "Review the report and screenshot before opening GitHub.": "GitHub'ı açmadan önce raporu ve ekran görüntüsünü gözden geçirin.",
   "Rim Edge": "Ağız kenarı",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio bu tasarımlar kaydedilmeden önce kapandı. Son otomatik kayıtları açılabilir.",
   "Roll History Marker Here": "Geçmiş işaretçisini buraya taşı",
   "Round": "Yuvarlak",
   "Rule": "Kural",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "Eskiz düzleminin bir gövde yüzüne bağlaması yok.",
   "Sketch points": "Eskiz noktaları",
   "Slot width": "Yuva genişliği",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio bu tasarımlar kaydedilmeden önce kapandı. Son otomatik kayıtları açılabilir.",
   "Specialise": "Özelleştir",
   "Speed": "Hız",
   "Stand it up": "Dik çevir",

@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 stänger av det",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Öppna GitHub-utkastet nedan och klistra sedan in rapporten som kopierats till urklipp.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Öppna GitHub-utkastet nedan. Din rubrik och rapport fylls i automatiskt.",
@@ -304,6 +304,7 @@
   "Revert Position": "Återställ läge",
   "Review the report and screenshot before opening GitHub.": "Granska rapporten och skärmdumpen innan du öppnar GitHub.",
   "Rim Edge": "Kantlist",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio stängdes innan dessa konstruktioner sparades. Deras senaste autospar kan öppnas.",
   "Roll History Marker Here": "Rulla historikmarkören hit",
   "Round": "Rund",
   "Rule": "Regel",
@@ -341,7 +342,6 @@
   "Sketch plane has no body-face attachment.": "Skissplanet saknar fäste på kroppsyta.",
   "Sketch points": "Skisspunkter",
   "Slot width": "Spårbredd",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio stängdes innan dessa konstruktioner sparades. Deras senaste autospar kan öppnas.",
   "Specialise": "Specialisera",
   "Speed": "Hastighet",
   "Stand it up": "Res upp den",

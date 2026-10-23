@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 вимикає це",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Відкрийте чернетку GitHub нижче, а потім вставте звіт, скопійований у буфер обміну.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Відкрийте чернетку GitHub нижче. Заголовок і звіт буде заповнено.",
@@ -305,6 +305,7 @@
   "Revert Position": "Повернути положення",
   "Review the report and screenshot before opening GitHub.": "Перегляньте звіт і знімок екрана перед відкриттям GitHub.",
   "Rim Edge": "Крайове ребро",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio закрився до того, як ці проєкти було збережено. Можна відкрити їхнє останнє автозбереження.",
   "Roll History Marker Here": "Перемістити маркер історії сюди",
   "Round": "Круглий",
   "Rule": "Правило",
@@ -342,7 +343,6 @@
   "Sketch plane has no body-face attachment.": "Площина ескізу не має прив'язки до грані тіла.",
   "Sketch points": "Точки ескізу",
   "Slot width": "Ширина паза",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio закрився до того, як ці проєкти було збережено. Можна відкрити їхнє останнє автозбереження.",
   "Specialise": "Спеціалізувати",
   "Speed": "Швидкість",
   "Stand it up": "Вирівняти",

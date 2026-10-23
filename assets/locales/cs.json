@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 vypíná",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. Otevřete níže koncept na GitHubu a vložte hlášení zkopírované do schránky.",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. Otevřete níže koncept na GitHubu. Název a hlášení se vyplní automaticky.",
@@ -305,6 +305,7 @@
   "Revert Position": "Vrátit polohu",
   "Review the report and screenshot before opening GitHub.": "Před otevřením GitHubu zkontrolujte hlášení a snímek.",
   "Rim Edge": "Okrajová hrana",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio se zavřel dříve, než se tyto návrhy uložily. Lze otevřít jejich poslední automatické uložení.",
   "Roll History Marker Here": "Přesunout značku historie sem",
   "Round": "Zaoblený",
   "Rule": "Pravidlo",
@@ -342,7 +343,6 @@
   "Sketch plane has no body-face attachment.": "Rovina náčrtu není připojena k ploše tělesa.",
   "Sketch points": "Body náčrtu",
   "Slot width": "Šířka drážky",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio se zavřel dříve, než se tyto návrhy uložily. Lze otevřít jejich poslední automatické uložení.",
   "Specialise": "Specializovat",
   "Speed": "Rychlost",
   "Stand it up": "Postavit",

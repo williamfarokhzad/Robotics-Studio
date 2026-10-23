@@ -1,4 +1,4 @@
-﻿{
+{
   "0 turns it off": "0 表示关闭",
   "1. Open GitHub draft below, then paste the report copied to your clipboard.": "1. 点击下方按钮打开 GitHub 草稿，然后粘贴已复制到剪贴板的报告。",
   "1. Open GitHub draft below. Your title and report will be filled in.": "1. 点击下方按钮打开 GitHub 草稿。标题和报告将自动填入。",
@@ -399,6 +399,7 @@
   "Ribs": "筋板",
   "Rim Edge": "轮缘边",
   "Ring of tools on the right button": "右键工具环",
+  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio 在这些设计保存前已关闭。可以打开它们的上次自动保存。",
   "Roll Back Here": "回滚到此处",
   "Roll History Marker Here": "将历史标记滚动到此处",
   "Round": "圆角",
@@ -444,7 +445,6 @@
   "Sketch plane has no body-face attachment.": "草图平面没有实体面附着。",
   "Sketch points": "草图点",
   "Slot width": "槽宽",
-  "Robotics Studio closed before these designs were saved. Their last autosave can be opened.": "Robotics Studio 在这些设计保存前已关闭。可以打开它们的上次自动保存。",
   "Specialise": "专用操作",
   "Speed": "速度",
   "Splitting tool": "分割工具",
