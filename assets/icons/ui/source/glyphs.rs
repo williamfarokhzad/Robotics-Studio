@@ -108,50 +108,46 @@ pub(crate) fn brand_mark_silhouette(p: &egui::Painter, c: Pos2, height: f32, ink
 }
 
 fn brand_mark_styled(p: &egui::Painter, c: Pos2, height: f32, colours: [Color32; 4], edges: bool) {
-    let s = height / 412.217;
-    let m = |pts: &[(f32, f32)]| -> Vec<egui::Pos2> { pts.iter().map(|&(x, y)| pos2(c.x + (x - 178.5) * s, c.y + (y - 206.1) * s)).collect() };
-    // egui only fills convex shapes, so each face is a few overlapping convex pieces.
-    let face = |col: Color32, pts: &[(f32, f32)]| {
-        p.add(egui::Shape::convex_polygon(m(pts), col, Stroke::NONE));
-    };
-    // The faces are separated by gaps that show the application bar, not by white lines.
+    let r = height * 0.48;
     let [light, mid, dark, _] = colours;
-    let edge_col = crate::theme::Tokens::get().app_bar;
-    face(light, &[(3.5, 105.9), (177.0, 5.8), (263.4, 55.6), (263.8, 156.0), (177.0, 406.4)]);
-    face(light, &[(177.0, 206.1), (263.8, 156.0), (350.5, 206.2), (350.5, 306.3), (177.0, 406.4)]);
-    face(mid, &[(3.5, 105.9), (177.0, 206.1), (177.0, 406.4)]);
-    face(mid, &[(3.5, 105.9), (3.5, 205.7), (90.3, 256.2), (177.0, 206.1)]);
-    face(mid, &[(177.0, 206.1), (90.3, 256.2), (90.0, 356.2), (177.0, 406.4)]);
-    face(dark, &[(264.1, 155.8), (177.0, 206.1), (177.0, 406.4), (263.8, 256.2)]);
-    face(dark, &[(263.8, 256.2), (350.5, 206.2), (350.5, 306.3), (177.0, 406.4)]);
-    face(dark, &[(177.0, 206.1), (177.0, 406.4), (350.5, 306.3)]);
-    face(dark, &[(263.8, 55.9), (263.8, 156.0), (177.1, 105.9)]);
-    if !edges {
-        return;
+    let cyan = Color32::from_rgb(0, 220, 255);
+    let edge_col = if edges { crate::theme::Tokens::get().app_bar } else { Color32::TRANSPARENT };
+
+    // Isometric 3D Hexagonal Cube vertices (radius r from center c)
+    let p_top = pos2(c.x, c.y - r);
+    let p_tr = pos2(c.x + r * 0.866, c.y - r * 0.5);
+    let p_br = pos2(c.x + r * 0.866, c.y + r * 0.5);
+    let p_bot = pos2(c.x, c.y + r);
+    let p_bl = pos2(c.x - r * 0.866, c.y + r * 0.5);
+    let p_tl = pos2(c.x - r * 0.866, c.y - r * 0.5);
+
+    // Top isometric face (illuminated)
+    p.add(egui::Shape::convex_polygon(vec![p_top, p_tr, c, p_tl], light, Stroke::NONE));
+    // Right isometric face (shaded)
+    p.add(egui::Shape::convex_polygon(vec![c, p_tr, p_br, p_bot], dark, Stroke::NONE));
+    // Left isometric face (mid)
+    p.add(egui::Shape::convex_polygon(vec![p_tl, c, p_bot, p_bl], mid, Stroke::NONE));
+
+    // Internal robotic joint core
+    let core_r = r * 0.38;
+    p.circle_filled(c, core_r, edge_col);
+    p.circle_filled(c, core_r * 0.75, cyan);
+    p.circle_filled(c, core_r * 0.38, dark);
+
+    if edges {
+        let edge = Stroke::new(1.2, edge_col);
+        // Outer contour
+        p.add(egui::Shape::closed_line(vec![p_top, p_tr, p_br, p_bot, p_bl, p_tl], edge));
+        // Robotic joint actuator seams radiating from center
+        p.line_segment([c, p_top], Stroke::new(1.4, edge_col));
+        p.line_segment([c, p_br], Stroke::new(1.4, edge_col));
+        p.line_segment([c, p_bl], Stroke::new(1.4, edge_col));
+        // Cyan actuator indicator nodes on the 3 facets
+        let dot_r = r * 0.12;
+        p.circle_filled(pos2(c.x, c.y - r * 0.6), dot_r, cyan);
+        p.circle_filled(pos2(c.x + r * 0.52, c.y + r * 0.3), dot_r, cyan);
+        p.circle_filled(pos2(c.x - r * 0.52, c.y + r * 0.3), dot_r, cyan);
     }
-    // White edge lines.
-    let edge = Stroke::new(10.0 * s, edge_col);
-    let line = |pts: &[(f32, f32)]| {
-        p.add(egui::Shape::line(m(pts), edge));
-    };
-    line(&[(263.8, 55.9), (177.1, 105.9), (263.8, 156.0), (263.8, 256.2), (350.6, 206.1)]);
-    line(&[(5.0, 105.9), (178.5, 206.1), (178.5, 406.4)]);
-    line(&[(177.0, 206.1), (263.8, 156.0)]);
-    p.add(egui::Shape::closed_line(
-        m(&[
-            (178.5, 5.8),
-            (5.0, 105.9),
-            (5.0, 206.1),
-            (91.7, 256.2),
-            (91.7, 356.4),
-            (178.5, 406.4),
-            (352.0, 306.3),
-            (352.0, 206.1),
-            (265.2, 156.0),
-            (265.2, 55.9),
-        ]),
-        edge,
-    ));
 }
 
 pub(crate) fn cross(p: &egui::Painter, r: Rect, s: Stroke) {

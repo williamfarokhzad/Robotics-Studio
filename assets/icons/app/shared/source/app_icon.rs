@@ -34,8 +34,8 @@ pub fn rgba(size: usize) -> Result<Vec<u8>, String> {
             }
         }
     };
-    // Faces: each is a few overlapping convex pieces (the filler only does convex shapes).
-    let (light, mid, dark) = ([96, 158, 236], [58, 136, 238], [55, 108, 197]);
+    // Faces: rich electric cyan / deep aerospace cobalt palette for Robotics Studio
+    let (light, mid, dark) = ([38, 195, 240], [20, 145, 210], [14, 95, 175]);
     fill(&[(3.5, 105.9), (177.0, 5.8), (263.4, 55.6), (263.8, 156.0), (177.0, 406.4)], light);
     fill(&[(177.0, 206.1), (263.8, 156.0), (350.5, 206.2), (350.5, 306.3), (177.0, 406.4)], light);
     fill(&[(3.5, 105.9), (177.0, 206.1), (177.0, 406.4)], mid);
