@@ -189,7 +189,7 @@ jobs:
               # its startup, the viewport's wgpu glue, the vendored egui-wgpu, their scripts.
               case "$path" in
                 crates/gpu/*|apps/solidcraft/*|crates/ui-egui/src/gpu.rs|vendor/egui-wgpu/*) windows=true ;;
-                tools/windows-*.ps1|.github/workflows/ci.yml|rust-toolchain*|.cargo/*) windows=true ;;
+                tools/windows-*.ps1|packaging/windows/*|run-robotics-studio.bat|apps/solidcraft-cli/*|.github/workflows/ci.yml|rust-toolchain*|.cargo/*) windows=true ;;
               esac
             done < "$RUNNER_TEMP/ci-paths"
             # A lockfile change that moves the graphics stack (wgpu, naga, egui, winit, windows).
@@ -213,12 +213,14 @@ jobs:
           if [ "$EVENT_NAME" = pull_request ] && [ "$full" != true ]; then
             case " $packages " in *" solidcraft-cli "*) ;; *) oracle=false ;; esac
           fi
-          # The pull request fast lane: Windows, the reference tests and the doc tests run on main
-          # (and the nightly), not on every pull request push; a break there is fixed forward on
-          # main. Over three days of pull requests the doc tests were the only failing job 3 times
-          # in about 7,900 runner-minutes, and the reference tests never were.
+          # Reference and doc tests stay on main/nightly. Approved pull requests that touch
+          # Windows or CLI launch paths also run the Windows checks before merging.
           doctests=$native
-          if [ "$EVENT_NAME" = pull_request ]; then windows=false; oracle=false; doctests=false; fi
+          if [ "$EVENT_NAME" = pull_request ]; then
+            oracle=false
+            doctests=false
+            if [ "$APPROVED" != true ]; then windows=false; fi
+          fi
           # Until a maintainer adds approved-for-ci, a pull request gets a quick compile instead of
           # Clippy, the tests, the doc tests and the goldens.
           quick=false

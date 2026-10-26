@@ -185,7 +185,8 @@ changes run the repository checks only, on pull requests and on `main`. Workspac
 merge-queue groups, nightly runs and Run workflow select the full workspace. A push to `main`
 reuses a successful merge-queue run for the same commit, and runs only the repository checks
 when no code changed since the last push to `main` that passed; otherwise it runs the full
-suite. Doc tests, reference tests and the Windows jobs run on `main` and nightly only.
+suite. Doc tests and reference tests run on `main` and nightly only. Windows checks also run
+on approved pull requests that touch Windows, CLI launch paths or CI configuration.
 
 **CI shards the tests.** One job builds them into a cargo-nextest archive; two shards run on
 pull requests and four during full validation. Every test runs in its own process: don't rely
