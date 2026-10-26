@@ -58,7 +58,7 @@ Whether you are designing multi-axis robotic arms, mobile rover chassis, mechani
 Robotics Studio features native **Model Context Protocol (MCP)** integration. AI coding assistants (such as Claude Code, Cursor, Antigravity, and custom LLM agents) can drive the modeling engine programmatically:
 ```sh
 # Start the headless MCP server for AI agent pairing
-robotics-studio mcp
+solidcraft-cli mcp
 ```
 
 ### 5. 🔄 Interoperability & File Support
@@ -86,7 +86,7 @@ Robotics Studio follows an uncompromised layered architecture (`cargo xtask laye
 ## ⚡ Quickstart & Building
 
 ### Prerequisites
-* Rust 1.85+ (Edition 2024)
+* Rust 1.95+ (Edition 2024)
 * A graphics driver supporting Vulkan, DirectX 12, or Metal
 
 ### Build Desktop Application

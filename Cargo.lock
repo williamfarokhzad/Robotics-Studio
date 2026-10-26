@@ -4193,7 +4193,7 @@ dependencies = [
 
 [[package]]
 name = "solidcraft-3dx-client"
-version = "0.0.1"
+version = "0.0.3"
 
 [[package]]
 name = "solidcraft-cli"
@@ -4209,7 +4209,7 @@ dependencies = [
 
 [[package]]
 name = "solidcraft-derive"
-version = "0.0.1"
+version = "0.0.3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4357,7 +4357,7 @@ dependencies = [
 
 [[package]]
 name = "solidcraft-space-mouse"
-version = "0.0.1"
+version = "0.0.3"
 dependencies = [
  "serde",
 ]

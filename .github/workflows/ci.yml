@@ -307,7 +307,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Size parallel compiles to the job's memory
-        run: scripts/ci/build-jobs.sh
+        run: bash scripts/ci/build-jobs.sh
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
@@ -359,7 +359,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Size parallel compiles to the job's memory
-        run: scripts/ci/build-jobs.sh
+        run: bash scripts/ci/build-jobs.sh
       - uses: dtolnay/rust-toolchain@stable
       # sccache lives on a Blacksmith sticky disk (an ext4 volume cloned from the last snapshot,
       # no 10 GB limit and no download). Only main commits it; pull requests, the merge queue and
@@ -429,7 +429,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends mesa-vulkan-drivers libvulkan1
       - name: Size parallel compiles to the job's memory
-        run: scripts/ci/build-jobs.sh
+        run: bash scripts/ci/build-jobs.sh
       - uses: dtolnay/rust-toolchain@stable
       # sccache lives on a Blacksmith sticky disk (an ext4 volume cloned from the last snapshot,
       # no 10 GB limit and no download). Only main commits it; pull requests, the merge queue and
@@ -614,7 +614,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Size parallel compiles to the job's memory
-        run: scripts/ci/build-jobs.sh
+        run: bash scripts/ci/build-jobs.sh
       - uses: dtolnay/rust-toolchain@stable
       # sccache lives on a Blacksmith sticky disk (an ext4 volume cloned from the last snapshot,
       # no 10 GB limit and no download). Only main commits it; pull requests, the merge queue and
@@ -672,7 +672,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Size parallel compiles to the job's memory
-        run: scripts/ci/build-jobs.sh
+        run: bash scripts/ci/build-jobs.sh
       - uses: dtolnay/rust-toolchain@stable
       # sccache lives on a Blacksmith sticky disk (an ext4 volume cloned from the last snapshot,
       # no 10 GB limit and no download). Only main commits it; pull requests, the merge queue and
