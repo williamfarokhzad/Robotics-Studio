@@ -1,5 +1,5 @@
 //! Private cloud MCP gateway. Each OAuth grant owns isolated, expiring CLI processes.
-#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic)]
+#![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 use axum::{
     Form, Json, Router,
     extract::{DefaultBodyLimit, Path, Query, State},

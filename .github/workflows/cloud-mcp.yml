@@ -2,9 +2,6 @@ name: Cloud MCP
 on:
   pull_request:
     paths: ['cloud/**', '.github/workflows/cloud-mcp.yml']
-  push:
-    branches: ['feat/cloud-mcp']
-    paths: ['cloud/**', '.github/workflows/cloud-mcp.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,6 +29,6 @@ jobs:
             cloud -> target
       - run: cargo fmt --manifest-path cloud/Cargo.toml --check
       - run: cargo clippy --manifest-path cloud/Cargo.toml --all-targets --locked -- -D warnings
-      - run: cargo build --profile ci --locked -p solidcraft-cli --bin solidcraft-cli
+      - run: cargo --config 'profile.ci.package.cadmpeg-ir.opt-level=0' --config 'profile.ci.package.cadmpeg-codec-rhino.opt-level=0' --config 'profile.ci.package.cadmpeg-codec-freecad.opt-level=0' --config 'profile.ci.package.cadmpeg-codec-step.opt-level=0' build --profile ci --locked -p solidcraft-cli --bin solidcraft-cli
       - name: Test OAuth and real CAD through HTTP handlers
         run: STUDIO_TEST_CLI="$PWD/target/ci/solidcraft-cli" cargo test --manifest-path cloud/Cargo.toml --locked
