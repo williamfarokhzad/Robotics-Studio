@@ -549,6 +549,14 @@ fn cmd_exec(args: &[String]) -> Result<(), String> {
 /// a running app's control port. stdout carries only protocol messages. Files the agent's tool
 /// calls reach are confined to `solidcraft_mcp::agent_scope` unless `--allow-any-path` is given.
 fn cmd_mcp(args: &[String]) -> Result<(), String> {
+    // Missing values must not silently turn a bridged session into a headless one.
+    for name in ["--connect", "--in", "--token", "--allow-path"] {
+        for (index, arg) in args.iter().enumerate() {
+            if arg == name && args.get(index + 1).is_none_or(|value| value.is_empty() || value.starts_with("--")) {
+                return Err(format!("mcp: {name} requires a value"));
+            }
+        }
+    }
     install_renderer();
     let scope = (!args.iter().any(|a| a == "--allow-any-path"))
         .then(|| solidcraft_mcp::agent_scope(flags(args, "--allow-path").into_iter().map(std::path::PathBuf::from)));

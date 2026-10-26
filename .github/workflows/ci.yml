@@ -754,8 +754,10 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - name: Backend order and probing on Windows
         run: cargo test -p solidcraft --profile ci --locked -- startup::tests native_crash::tests native_frame::tests
-      - name: Build the app
-        run: cargo build -p solidcraft --profile ci --locked
+      - name: Build the app and MCP CLI
+        run: cargo build -p solidcraft -p solidcraft-cli --profile ci --locked
+      - name: MCP bridge and argument validation on Windows
+        run: cargo test -p solidcraft-cli --profile ci --locked --test mcp_connect
       - name: Start the app under different settings
         shell: pwsh
         run: tools/windows-startup-smoke.ps1 -Exe target/ci/solidcraft.exe

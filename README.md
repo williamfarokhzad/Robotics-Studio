@@ -102,6 +102,24 @@ cargo run --release -p solidcraft -- --sample
 cargo run --release -p solidcraft-cli -- commands
 ```
 
+### Windows desktop and MCP
+
+Extract the entire Windows portable ZIP so `solidcraft.exe` and `solidcraft-cli.exe`
+remain together. In PowerShell, open the app with its local control channel:
+
+```powershell
+.\solidcraft.exe --control 7878
+```
+
+In a second PowerShell window in the same folder, start the MCP bridge:
+
+```powershell
+.\solidcraft-cli.exe mcp --connect 127.0.0.1:7878
+```
+
+The desktop EXE alone does not contain the CLI. MCP uses stdio; ChatGPT also needs a
+compatible tunnel or HTTP adapter. See [building](docs/building.md) and [MCP](docs/mcp.md).
+
 ### Quality & Safety Verification
 ```bash
 # Run the complete test suite, formatting, Clippy lints, and architecture layer audit

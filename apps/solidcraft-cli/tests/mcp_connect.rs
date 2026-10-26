@@ -89,3 +89,16 @@ fn mcp_connect_without_a_port_is_refused_at_start() {
         assert!(stderr.contains("HOST:PORT"), "{addr}: {stderr}");
     }
 }
+
+#[test]
+fn mcp_options_require_values_instead_of_starting_a_different_session() {
+    for option in ["--connect", "--in", "--token", "--allow-path"] {
+        for suffix in [vec![], vec!["--allow-any-path"], vec![""]] {
+            let output = Command::new(env!("CARGO_BIN_EXE_solidcraft-cli")).args(["mcp", option]).args(suffix).stdin(Stdio::null()).output().unwrap();
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert!(!output.status.success(), "{option}: {stderr}");
+            assert!(stderr.contains(&format!("{option} requires a value")), "{option}: {stderr}");
+            assert!(output.stdout.is_empty(), "errors must not pollute MCP stdout");
+        }
+    }
+}
