@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+FROM rust:1.95-slim-bookworm AS gateway
+WORKDIR /gateway
+COPY cloud/Cargo.toml cloud/Cargo.lock ./
+COPY cloud/src ./src
+RUN --mount=type=cache,target=/usr/local/cargo/registry CARGO_BUILD_JOBS=2 cargo build --release --locked
+
+FROM rust:1.95-slim-bookworm AS cad
+RUN apt-get update && apt-get install -y --no-install-recommends pkg-config libfontconfig1-dev && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+COPY . .
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/src/target CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 RUSTFLAGS='-C codegen-units=1' cargo --config 'profile.ci.package.cadmpeg-ir.opt-level=0' --config 'profile.ci.package.cadmpeg-codec-rhino.opt-level=0' --config 'profile.ci.package.cadmpeg-codec-freecad.opt-level=0' --config 'profile.ci.package.cadmpeg-codec-step.opt-level=0' build --profile ci --locked -p solidcraft-cli --bin solidcraft-cli && cp target/ci/solidcraft-cli /solidcraft-cli
+
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates libfontconfig1 libvulkan1 mesa-vulkan-drivers libegl1 libgl1 && rm -rf /var/lib/apt/lists/* && useradd --create-home --uid 10001 studio
+COPY --from=gateway /gateway/target/release/solidcraft-cloud /usr/local/bin/
+COPY --from=cad /solidcraft-cli /usr/local/bin/
+COPY LICENSE-MIT LICENSE-APACHE NOTICE THIRD-PARTY-LICENSES.txt /usr/share/doc/solidcraft/
+COPY cloud/THIRD-PARTY-LICENSES.txt /usr/share/doc/solidcraft/cloud-dependencies.txt
+USER studio
+ENV PORT=10000
+EXPOSE 10000
+CMD ["solidcraft-cloud"]
