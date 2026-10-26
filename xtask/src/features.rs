@@ -80,7 +80,9 @@ pub fn page(cmds: &[Value]) -> String {
                 (t, p) => format!("{t} › {p}"),
             };
             let key = c["shortcut"].as_str().map(|k| format!(" ({k})")).unwrap_or_default();
-            let note = planned(c).map(|i| format!(" *(planned: [#{i}](https://github.com/williamfarokhzad/Robotics-Studio/issues/{i}))*")).unwrap_or_default();
+            let note = planned(c)
+                .map(|i| format!(" *(planned: [#{i}](https://github.com/williamfarokhzad/Robotics-Studio/issues/{i}))*"))
+                .unwrap_or_default();
             md += &format!("| {}{key}{note} | `{}` | {place} |\n", s(c, "label").replace('|', "/"), s(c, "id"));
         }
     }
@@ -106,7 +108,9 @@ mod tests {
         assert!(sk < so && so < other);
         assert!(md.contains("| Extrude (E) | `solid.extrude` | SOLID › CREATE |"));
         assert!(md.contains("| Fit | `view.fit` | – |"));
-        assert!(md.contains("| Knit *(planned: [#9](https://github.com/williamfarokhzad/Robotics-Studio/issues/9))* | `solid.knit` | SOLID › CREATE |"));
+        assert!(
+            md.contains("| Knit *(planned: [#9](https://github.com/williamfarokhzad/Robotics-Studio/issues/9))* | `solid.knit` | SOLID › CREATE |")
+        );
     }
     #[test]
     fn unrelated_additions_do_not_rewrite_existing_lines_and_order_is_stable() {

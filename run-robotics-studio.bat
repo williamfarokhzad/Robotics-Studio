@@ -1,38 +1,33 @@
 @echo off
+setlocal
 title Robotics Studio - WIFA Robotics
-echo ========================================================
-echo           Launching Robotics Studio v0.0.3
-echo                 by WIFA Robotics
-echo ========================================================
-echo.
-
-set "CARGO_PATH=%USERPROFILE%\.cargo\bin"
-set "PATH=%CARGO_PATH%;%PATH%"
-
 cd /d "%~dp0"
+set "PATH=%USERPROFILE%\.cargo\bin;%PATH%"
 
+if exist "solidcraft.exe" (
+    start "" "%~dp0solidcraft.exe" %*
+    exit /b 0
+)
 if exist "RoboticsStudio.exe" (
-    echo Starting Robotics Studio...
-    start "" "RoboticsStudio.exe" --sample
+    start "" "%~dp0RoboticsStudio.exe" %*
     exit /b 0
 )
-
-if exist "target\x86_64-pc-windows-msvc\release\solidcraft.exe" (
-    echo Starting Robotics Studio...
-    start "" "target\x86_64-pc-windows-msvc\release\solidcraft.exe" --sample
-    exit /b 0
-)
-
 if exist "target\release\solidcraft.exe" (
-    echo Starting Robotics Studio...
-    start "" "target\release\solidcraft.exe" --sample
+    start "" "%~dp0target\release\solidcraft.exe" %*
+    exit /b 0
+)
+if exist "target\x86_64-pc-windows-msvc\release\solidcraft.exe" (
+    start "" "%~dp0target\x86_64-pc-windows-msvc\release\solidcraft.exe" %*
     exit /b 0
 )
 
-echo Building Robotics Studio binary (first time setup)...
-cargo xwin run --release --target x86_64-pc-windows-msvc -p solidcraft -- --sample
+where cargo >nul 2>&1
 if errorlevel 1 (
-    echo.
-    echo [Error] Failed to launch Robotics Studio.
-    pause
+    echo [Error] No desktop executable or Rust installation found. 1>&2
+    echo Extract the Windows portable ZIP, or install Rust and Visual Studio C++ Build Tools. 1>&2
+    exit /b 1
 )
+echo Building Robotics Studio and its MCP command-line tool... 1>&2
+cargo build --release --locked -p solidcraft -p solidcraft-cli
+if errorlevel 1 exit /b 1
+start "" "%~dp0target\release\solidcraft.exe" %*

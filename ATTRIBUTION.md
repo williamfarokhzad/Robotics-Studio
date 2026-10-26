@@ -115,6 +115,7 @@ Editable drawing code, native projects and shipped exports are collected under `
 | assets/icons/app/linux/exports/hicolor/512x512/apps/ai.storyteller.solidcraft.png | SolidCraft contributors | Generated from assets/icons/app/shared/source/app_icon.rs with the original CLI/ICO encoders | MIT OR Apache-2.0 |
 | assets/icons/app/linux/exports/hicolor/64x64/apps/ai.storyteller.solidcraft.png | SolidCraft contributors | Generated from assets/icons/app/shared/source/app_icon.rs with the original CLI/ICO encoders | MIT OR Apache-2.0 |
 | assets/icons/app/shared/source/app_icon.rs | SolidCraft contributors | Original SolidCraft resource data or drawing code, collected without redesign | MIT OR Apache-2.0 |
+| assets/icons/app/shared/source/windows_ico.rs | SolidCraft contributors | Original executable ICO encoder for the shared app icon, using DIB images and transparency masks | MIT OR Apache-2.0 |
 | assets/branding/app_icon.ico | WIFA Robotics | Robotics Studio high-resolution multi-frame Windows application icon | MIT OR Apache-2.0 |
 | assets/icons/app/windows/exports/solidcraft-executable.ico | WIFA Robotics | Robotics Studio executable icon generated from official brand artwork | MIT OR Apache-2.0 |
 | assets/icons/app/windows/exports/solidcraft.ico | WIFA Robotics | Robotics Studio installer icon generated from official brand artwork | MIT OR Apache-2.0 |

@@ -58,7 +58,7 @@ Whether you are designing multi-axis robotic arms, mobile rover chassis, mechani
 Robotics Studio features native **Model Context Protocol (MCP)** integration. AI coding assistants (such as Claude Code, Cursor, Antigravity, and custom LLM agents) can drive the modeling engine programmatically:
 ```sh
 # Start the headless MCP server for AI agent pairing
-robotics-studio mcp
+solidcraft-cli mcp
 ```
 
 ### 5. 🔄 Interoperability & File Support
@@ -86,7 +86,7 @@ Robotics Studio follows an uncompromised layered architecture (`cargo xtask laye
 ## ⚡ Quickstart & Building
 
 ### Prerequisites
-* Rust 1.85+ (Edition 2024)
+* Rust 1.95+ (Edition 2024)
 * A graphics driver supporting Vulkan, DirectX 12, or Metal
 
 ### Build Desktop Application
@@ -101,6 +101,24 @@ cargo run --release -p solidcraft -- --sample
 # Run the headless command-line interface
 cargo run --release -p solidcraft-cli -- commands
 ```
+
+### Windows desktop and MCP
+
+Extract the entire Windows portable ZIP so `solidcraft.exe` and `solidcraft-cli.exe`
+remain together. In PowerShell, open the app with its local control channel:
+
+```powershell
+.\solidcraft.exe --control 7878
+```
+
+In a second PowerShell window in the same folder, start the MCP bridge:
+
+```powershell
+.\solidcraft-cli.exe mcp --connect 127.0.0.1:7878
+```
+
+The desktop EXE alone does not contain the CLI. MCP uses stdio; ChatGPT also needs a
+compatible tunnel or HTTP adapter. See [building](docs/building.md) and [MCP](docs/mcp.md).
 
 ### Quality & Safety Verification
 ```bash
