@@ -10,6 +10,7 @@ Deploy `cloud/Dockerfile` from the repository root as a Docker web service. Set:
 * `STUDIO_PUBLIC_URL`: the service HTTPS origin, without a trailing path.
 * `STUDIO_ADMIN_PASSWORD`: a unique owner password of at least 20 characters. Enter it in
   Render Environment; never put it in source control or chat. Login stays disabled until set.
+* `STUDIO_OAUTH_SIGNING_KEY`: a persistent random secret of at least 32 characters. Keep it unchanged across deployments so registered ChatGPT client IDs stay valid. Rotating it requires recreating the ChatGPT connection.
 * `PORT`: Render supplies this, default 10000.
 
 In ChatGPT Plugins, add a custom MCP server with URL `<STUDIO_PUBLIC_URL>/mcp`, use OAuth,
@@ -26,7 +27,7 @@ and call download_file for both files.” Expected volume is 6000 cubic millimet
 This is a **single-owner private preview**, not a public multi-user product or a security
 boundary for running untrusted native code. OAuth uses authorization codes, S256 PKCE,
 resource binding, one-use codes, rotating refresh tokens, owner consent and a login rate
-limit. Client registrations and tokens are in memory and are lost on restart.
+limit. Client registrations are signed with the persistent signing key and remain valid after restart. Access/refresh tokens are in memory; a restart can require signing in again.
 
 Each MCP session owns a distinct CLI child process, temporary directory, HOME, XDG data
 and temp directory. Children receive no server environment secrets. The existing engine's
@@ -40,7 +41,7 @@ access, not a separate OS/container sandbox per tenant.
 * Sessions expire after 30 minutes idle, checked every 30 seconds.
 * Temporary download links expire after 30 minutes or when their session ends. A link grants
   access to that file to anyone holding it; treat links as private.
-* Saved/exported designs, tokens and registrations do **not** survive a Render restart,
+* Saved/exported designs and tokens do **not** survive a Render restart,
   redeploy, free-service sleep or session expiration. Download your work promptly.
 * The browser viewer's local designs are not automatically synchronized with these sessions.
 * Free hosting can sleep; cold starts may affect ChatGPT connection attempts.

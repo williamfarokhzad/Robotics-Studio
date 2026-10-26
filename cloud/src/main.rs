@@ -8,6 +8,7 @@ use axum::{
     routing::{get, post},
 };
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
+use hmac::{Hmac, Mac};
 use serde::Deserialize;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -19,7 +20,7 @@ use std::{
 };
 use subtle::ConstantTimeEq;
 use tokio::{
-    io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
+    io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader},
     process::{Child, ChildStdin, ChildStdout, Command},
     sync::Mutex,
 };
@@ -35,13 +36,13 @@ struct Shared {
     base: String,
     cli: PathBuf,
     password: Option<[u8; 32]>,
+    client_key: [u8; 32],
     inner: Mutex<Store>,
     // Single CAD operation at a time on the free instance. HTTP/auth stay responsive.
     compute: Mutex<()>,
 }
 #[derive(Default)]
 struct Store {
-    clients: HashMap<String, Vec<String>>,
     pending: HashMap<String, (Authorize, Instant)>,
     codes: HashMap<String, Code>,
     tokens: HashMap<String, Token>,
@@ -159,6 +160,26 @@ async fn metadata(State(app): State<App>) -> Json<Value> {
         json!({"issuer":app.base,"authorization_endpoint":format!("{}/oauth/authorize",app.base),"token_endpoint":format!("{}/oauth/token",app.base),"registration_endpoint":format!("{}/oauth/register",app.base),"response_types_supported":["code"],"grant_types_supported":["authorization_code","refresh_token"],"token_endpoint_auth_methods_supported":["none"],"code_challenge_methods_supported":["S256"],"scopes_supported":["cad"],"authorization_response_iss_parameter_supported":true}),
     )
 }
+fn signed_client(app: &Shared, uris: &[String]) -> Result<String, Failure> {
+    let body = URL_SAFE_NO_PAD.encode(json!({"issuer":app.base,"redirect_uris":uris,"nonce":random()}).to_string());
+    let mut mac = Hmac::<Sha256>::new_from_slice(&app.client_key).map_err(|_| bad("Invalid registration key"))?;
+    mac.update(body.as_bytes());
+    Ok(format!("{body}.{}", URL_SAFE_NO_PAD.encode(mac.finalize().into_bytes())))
+}
+fn client_uris(app: &Shared, id: &str) -> Option<Vec<String>> {
+    if id.len() > 4096 {
+        return None;
+    }
+    let (body, signature) = id.split_once('.')?;
+    let mut mac = Hmac::<Sha256>::new_from_slice(&app.client_key).ok()?;
+    mac.update(body.as_bytes());
+    mac.verify_slice(&URL_SAFE_NO_PAD.decode(signature).ok()?).ok()?;
+    let v: Value = serde_json::from_slice(&URL_SAFE_NO_PAD.decode(body).ok()?).ok()?;
+    if v.get("issuer")?.as_str()? != app.base {
+        return None;
+    }
+    v.get("redirect_uris")?.as_array()?.iter().map(|v| v.as_str().map(str::to_string)).collect()
+}
 async fn register(State(app): State<App>, Json(v): Json<Value>) -> Result<Response, Failure> {
     if v.get("token_endpoint_auth_method").and_then(Value::as_str).is_some_and(|s| s != "none") {
         return Err(bad("Only public PKCE clients are supported"));
@@ -170,15 +191,17 @@ async fn register(State(app): State<App>, Json(v): Json<Value>) -> Result<Respon
         .iter()
         .map(|v| v.as_str().unwrap_or("").to_string())
         .collect();
-    if uris.is_empty() || uris.len() > 8 || uris.iter().any(|s| !redirect_allowed(s)) {
+    if uris.is_empty()
+        || uris.len() > 8
+        || uris.iter().any(|s| s.len() > 512 || !redirect_allowed(s))
+        || uris.iter().map(String::len).sum::<usize>() > 1800
+    {
         return Err(bad("Only ChatGPT OAuth callbacks are allowed"));
     }
-    let mut db = app.inner.lock().await;
-    if db.clients.len() >= MAX_RECORDS {
-        return Err(busy());
+    if app.password.is_none() {
+        return Err(fail(StatusCode::SERVICE_UNAVAILABLE, "Owner login not configured"));
     }
-    let id = random();
-    db.clients.insert(id.clone(), uris.clone());
+    let id = signed_client(&app, &uris)?;
     Ok((StatusCode::CREATED,Json(json!({"client_id":id,"redirect_uris":uris,"token_endpoint_auth_method":"none","grant_types":["authorization_code","refresh_token"],"response_types":["code"]}))).into_response())
 }
 async fn authorize(State(app): State<App>, Query(a): Query<Authorize>) -> Result<Response, Failure> {
@@ -196,7 +219,7 @@ async fn authorize(State(app): State<App>, Query(a): Query<Authorize>) -> Result
         return Err(bad("Invalid OAuth request"));
     }
     let mut db = app.inner.lock().await;
-    if !db.clients.get(&a.client_id).is_some_and(|u| u.contains(&a.redirect_uri)) {
+    if !client_uris(&app, &a.client_id).is_some_and(|u| u.contains(&a.redirect_uri)) {
         return Err(bad("Unknown client or callback"));
     }
     db.pending.retain(|_, (_, expiry)| *expiry > Instant::now());
@@ -523,11 +546,16 @@ async fn file(State(app): State<App>, Path(cap): Path<String>) -> Result<Respons
         return Err(fail(StatusCode::NOT_FOUND, "Session expired"));
     }
     let path = file_path(&w, &name).await?;
-    let bytes = tokio::fs::read(path).await.map_err(|_| bad("Download failed"))?;
-    if bytes.len() as u64 > FILE_LIMIT {
+    let file = tokio::fs::File::open(path).await.map_err(|_| bad("Download failed"))?;
+    let length = file.metadata().await.map_err(|_| bad("Download failed"))?.len();
+    if length > FILE_LIMIT {
         return Err(bad("Download too large"));
     }
-    let mut r = bytes.into_response();
+    let stream = tokio_util::io::ReaderStream::new(file.take(length));
+    let mut r = axum::body::Body::from_stream(stream).into_response();
+    if let Ok(v) = length.to_string().parse() {
+        r.headers_mut().insert(header::CONTENT_LENGTH, v);
+    }
     r.headers_mut().insert(header::CONTENT_TYPE, header::HeaderValue::from_static("application/octet-stream"));
     if let Ok(v) = format!("attachment; filename=\"{name}\"").parse() {
         r.headers_mut().insert(header::CONTENT_DISPOSITION, v);
@@ -569,7 +597,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if password.is_none() {
         eprintln!("Owner login disabled: set STUDIO_ADMIN_PASSWORD to at least 20 characters.");
     }
-    let app = Arc::new(Shared { base, cli, password, inner: Mutex::new(Store::default()), compute: Mutex::new(()) });
+    let signing = std::env::var("STUDIO_OAUTH_SIGNING_KEY")?;
+    if signing.len() < 32 {
+        return Err("STUDIO_OAUTH_SIGNING_KEY must have at least 32 characters".into());
+    }
+    let client_key = hash(&signing);
+    let app = Arc::new(Shared { base, cli, password, client_key, inner: Mutex::new(Store::default()), compute: Mutex::new(()) });
     let cleanup = app.clone();
     tokio::spawn(async move {
         loop {
@@ -625,6 +658,7 @@ mod tests {
             base: "https://studio.test".into(),
             cli: std::env::var_os("STUDIO_TEST_CLI").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("/bin/cat")),
             password: Some(hash("test-password-at-least-20-characters")),
+            client_key: hash("test-signing-key-at-least-32-characters"),
             inner: Mutex::new(Store::default()),
             compute: Mutex::new(()),
         })
@@ -725,6 +759,27 @@ mod tests {
         assert_eq!(replay, StatusCode::BAD_REQUEST);
         assert_eq!(err["error"], "invalid_grant");
         (client, v["access_token"].as_str().unwrap().into(), v["refresh_token"].as_str().unwrap().into())
+    }
+    #[test]
+    fn registered_client_survives_restart_but_not_tampering_or_key_rotation() {
+        let app = app();
+        let uri = "https://chatgpt.com/connector_platform_oauth_redirect".to_string();
+        let id = signed_client(&app, std::slice::from_ref(&uri)).unwrap();
+        let restarted = super::tests::app();
+        assert_eq!(client_uris(&restarted, &id), Some(vec![uri]));
+        assert!(client_uris(&restarted, &format!("{id}tampered")).is_none());
+        let mut different = Shared {
+            base: app.base.clone(),
+            cli: app.cli.clone(),
+            password: app.password,
+            client_key: hash("a different signing key"),
+            inner: Mutex::new(Store::default()),
+            compute: Mutex::new(()),
+        };
+        assert!(client_uris(&different, &id).is_none());
+        different.client_key = app.client_key;
+        different.base = "https://other.test".into();
+        assert!(client_uris(&different, &id).is_none());
     }
     #[tokio::test]
     async fn oauth_discovery_refresh_and_access_boundaries() {
