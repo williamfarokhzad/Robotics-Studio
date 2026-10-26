@@ -107,7 +107,7 @@ pub(crate) fn brand_mark_silhouette(p: &egui::Painter, c: Pos2, height: f32, ink
     brand_mark_styled(p, c, height, [ink; 4], false);
 }
 
-fn brand_mark_styled(p: &egui::Painter, c: Pos2, height: f32, colours: [Color32; 4], edges: bool) {
+fn brand_mark_styled(p: &egui::Painter, c: Pos2, height: f32, colours: [Color32; 4], _edges: bool) {
     let s = height / 20.0;
     let [light, _mid, dark, _] = colours;
     let cyan = Color32::from_rgb(0, 229, 255);
