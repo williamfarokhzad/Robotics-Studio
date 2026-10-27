@@ -21,7 +21,7 @@ pub(crate) fn button(ui: &mut egui::Ui, rect: Rect) {
     );
     // Approved provider mark, using the official light/dark variants.
     let icon = rect.shrink(6.0);
-    let dark = crate::theme::is_dark();
+    let dark = u16::from(t.app_bar.r()) + u16::from(t.app_bar.g()) + u16::from(t.app_bar.b()) < 384;
     let texture_id = id.with(("logo", dark));
     let texture = ui.ctx().data(|d| d.get_temp::<egui::TextureHandle>(texture_id)).or_else(|| {
         let bytes: &[u8] = if dark {
