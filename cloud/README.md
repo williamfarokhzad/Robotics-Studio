@@ -69,3 +69,15 @@ cross-grant access rejection and session deletion.
 `GET /health` checks HTTP readiness. `POST /mcp` requires bearer authentication and both
 JSON and SSE in Accept. Notifications return 202; requests return JSON. `GET /mcp` returns
 405 (no server-initiated SSE); `DELETE /mcp` ends a session. No request or secret logging.
+
+## ChatGPT account preview
+
+The account service and redesigned connector pages are documented in
+[ChatGPT sign-in](../docs/chatgpt-sign-in.md). Identity-only sign-in is disabled
+until OpenAI issues an approved `OPENAI_CLIENT_ID`. No ChatGPT password or API key
+is collected by Studio. The existing owner-only MCP authorization remains separate.
+Deploy the frontend reverse proxy and gateway together for same-origin sessions.
+
+The `account_test_key.pem` and `account_test_jwks.json` files are public test-only
+fixtures for signature-validation tests, not service credentials or signing keys.
+They are only included under `cfg(test)` and are never used by the running service.

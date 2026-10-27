@@ -568,3 +568,7 @@ A frame whose meshes the GPU refuses to stage (device lost or out of memory) is
 skipped with a warning instead of panicking (#1469).
 Paint callbacks are prepared only after a drawable is acquired, so a skipped
 surface frame cannot strand cached meshes without their GPU initialization.
+
+| assets/branding/chatgpt/logo-white.svg | OpenAI | Unmodified approved ChatGPT sign-in mark from https://developers.openai.com/assets/siwc/sign-in-buttons/chatgpt-logo-white.svg; used only to identify the ChatGPT sign-in provider, not as Studio branding | OpenAI brand asset, subject to OpenAI brand guidelines |
+| assets/branding/chatgpt/logo-white.png | OpenAI | Rasterization of the approved ChatGPT sign-in mark above using CairoSVG at 96 px, geometry unchanged | OpenAI brand asset, subject to OpenAI brand guidelines |
+| assets/branding/chatgpt/logo-black.svg | OpenAI | Unmodified approved ChatGPT sign-in mark from https://developers.openai.com/assets/siwc/sign-in-buttons/chatgpt-logo-black.svg; identifies the sign-in provider | OpenAI brand asset, subject to OpenAI brand guidelines |

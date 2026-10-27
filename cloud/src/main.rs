@@ -1,5 +1,8 @@
 //! Private cloud MCP gateway. Each OAuth grant owns isolated, expiring CLI processes.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
+mod account;
+mod pages;
+
 use axum::{
     Form, Json, Router,
     extract::{DefaultBodyLimit, Path, Query, State},
@@ -229,12 +232,16 @@ async fn authorize(State(app): State<App>, Query(a): Query<Authorize>) -> Result
     let ticket = random();
     let client = escape(&a.client_id);
     db.pending.insert(ticket.clone(), (a, Instant::now() + Duration::from_secs(300)));
-    let html = format!(
-        "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Connect Robotics Studio</title><body><main><h1>Connect Robotics Studio</h1><p>Private owner preview. Allow ChatGPT to create, edit and export CAD designs in temporary cloud sessions.</p><p>Client: <code>{client}</code></p><p>Sessions and downloads expire after 30 minutes of inactivity or a server restart. Download your work.</p><form method=\"post\" action=\"/oauth/authorize\"><input type=\"hidden\" name=\"ticket\" value=\"{ticket}\"><label>Studio owner password <input type=\"password\" name=\"password\" required autocomplete=\"current-password\"></label><button type=\"submit\">Sign in and allow CAD access</button></form></main></body></html>"
-    );
+    let html = pages::consent(&ticket, &client);
     Ok(Html(html).into_response())
 }
-async fn login(State(app): State<App>, h: HeaderMap, Form(f): Form<Login>) -> Result<Response, Failure> {
+async fn login(state: State<App>, headers: HeaderMap, form: Form<Login>) -> Response {
+    match login_inner(state, headers, form).await {
+        Ok(response) => response,
+        Err((status, message)) => (status, Html(pages::shell("Connection needs attention", &format!("<span class=\"eyebrow\">ROBOTICS STUDIO</span><h1>Let’s reconnect.</h1><p role=\"alert\">{}</p><a class=\"primary\" href=\"https://chatgpt.com/plugins\">Return to ChatGPT</a>", escape(&message))))).into_response(),
+    }
+}
+async fn login_inner(State(app): State<App>, h: HeaderMap, Form(f): Form<Login>) -> Result<Response, Failure> {
     if !allowed_origin(&app, &h) {
         return Err(fail(StatusCode::FORBIDDEN, "Origin rejected"));
     }
@@ -562,21 +569,31 @@ async fn file(State(app): State<App>, Path(cap): Path<String>) -> Result<Respons
     }
     Ok(r)
 }
+#[cfg(test)]
 fn router(app: App) -> Router {
-    Router::new().route("/",get(||async{Html("<!doctype html><html lang=en><title>Robotics Studio MCP</title><h1>Robotics Studio MCP</h1><p>Private owner preview. Connect the /mcp endpoint from ChatGPT using OAuth.</p><p>Temporary CAD sessions. Download exported work before 30 minutes idle or server restart.</p></html>")}))
+    match account::Account::new() {
+        Ok(account) => router_with_account(app, account),
+        Err(_) => Router::new().route("/health", get(|| async { StatusCode::SERVICE_UNAVAILABLE })),
+    }
+}
+fn router_with_account(app: App, account: account::Account) -> Router {
+    Router::new().route("/", get(|State(app): State<App>| async move { Html(pages::connect(&app.base)) }))
     .route("/health",get(||async{Json(json!({"status":"ok"}))}))
     .route("/.well-known/oauth-protected-resource",get(protected)).route("/.well-known/oauth-protected-resource/mcp",get(protected))
     .route("/.well-known/oauth-authorization-server",get(metadata))
     .route("/oauth/register",post(register)).route("/oauth/authorize",get(authorize).post(login)).route("/oauth/token",post(token))
     .route("/mcp",post(mcp).get(mcp_get).delete(mcp_delete)).route("/files/{cap}",get(file))
+    .with_state(app)
+    .merge(account::routes(account))
+    .merge(pages::routes())
     .layer(DefaultBodyLimit::max(BODY_LIMIT))
     .layer(axum::middleware::map_response(|mut r:Response|async move{
         r.headers_mut().insert(header::CACHE_CONTROL,header::HeaderValue::from_static("no-store"));
         r.headers_mut().insert("x-content-type-options",header::HeaderValue::from_static("nosniff"));
         r.headers_mut().insert("referrer-policy",header::HeaderValue::from_static("no-referrer"));
         r.headers_mut().insert("x-robots-tag",header::HeaderValue::from_static("noindex, nofollow"));
-        r.headers_mut().insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"));r
-    })).with_state(app)
+        r.headers_mut().insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"));r
+    }))
 }
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -629,7 +646,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port: u16 = std::env::var("PORT").unwrap_or_else(|_| "10000".into()).parse()?;
     let listener = tokio::net::TcpListener::bind((std::net::Ipv4Addr::UNSPECIFIED, port)).await?;
     eprintln!("Robotics Studio cloud listening on port {port}");
-    axum::serve(listener, router(app))
+    let account = account::Account::new()?;
+    axum::serve(listener, router_with_account(app, account))
         .with_graceful_shutdown(async {
             #[cfg(unix)]
             if let Ok(mut terminate) = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {

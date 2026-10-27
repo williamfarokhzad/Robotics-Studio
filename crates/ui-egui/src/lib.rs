@@ -151,6 +151,7 @@ mod blend_arrow_tests;
 mod blend_dialog_tests;
 #[cfg(test)]
 mod boundary_dialog_tests;
+mod chatgpt_account;
 pub(crate) mod display_lod;
 #[cfg(test)]
 mod file_load_ui_tests;
