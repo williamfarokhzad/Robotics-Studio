@@ -19,12 +19,17 @@ pub(crate) fn button(ui: &mut egui::Ui, rect: Rect) {
         t.radius_sm,
         if response.hovered() || response.has_focus() { t.app_bar_hover_button } else { t.app_bar },
     );
-    // Approved, unmodified OpenAI mark on a dark tile in both themes.
+    // Approved provider mark, using the official light/dark variants.
     let icon = rect.shrink(6.0);
-    ui.painter().rect_filled(icon.expand(3.0), 5.0, Color32::from_rgb(24, 29, 36));
-    let texture_id = id.with("logo");
+    let dark = crate::theme::is_dark();
+    let texture_id = id.with(("logo", dark));
     let texture = ui.ctx().data(|d| d.get_temp::<egui::TextureHandle>(texture_id)).or_else(|| {
-        let image = image::load_from_memory(include_bytes!("../../../assets/branding/chatgpt/logo-white.png")).ok()?.into_rgba8();
+        let bytes: &[u8] = if dark {
+            include_bytes!("../../../assets/branding/chatgpt/logo-white.png")
+        } else {
+            include_bytes!("../../../assets/branding/chatgpt/logo-black.png")
+        };
+        let image = image::load_from_memory(bytes).ok()?.into_rgba8();
         let image = egui::ColorImage::from_rgba_unmultiplied([image.width() as usize, image.height() as usize], image.as_raw());
         let texture = ui.ctx().load_texture("ChatGPT official mark", image, egui::TextureOptions::LINEAR);
         ui.ctx().data_mut(|d| d.insert_temp(texture_id, texture.clone()));
