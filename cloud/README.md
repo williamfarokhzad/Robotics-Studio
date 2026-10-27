@@ -81,3 +81,18 @@ Deploy the frontend reverse proxy and gateway together for same-origin sessions.
 The `account_test_key.pem` and `account_test_jwks.json` files are public test-only
 fixtures for signature-validation tests, not service credentials or signing keys.
 They are only included under `cfg(test)` and are never used by the running service.
+
+## Owner sign-in troubleshooting
+
+The owner password is the exact `STUDIO_ADMIN_PASSWORD` value on the gateway service
+in Render. It is separate from Google, ChatGPT, and the OpenAI client secret.
+A wrong password now keeps the same unexpired form available for another attempt;
+password input is never echoed back. The form expires after five minutes and is
+consumed only after successful authorization. Restarting the gateway also expires
+pending forms. Start Connect again from the existing ChatGPT plugin when that happens.
+Ten attempts in a minute trigger a one-minute cooldown. Error pages distinguish
+password mismatch, expired forms, rejected origins, and the cooldown.
+
+A secure ChatGPT credential prompt returning declined is not evidence that the
+server rejected a password. Check the actual site result before diagnosing it.
+Never paste passwords into chat or disable OAuth to work around a sign-in failure.

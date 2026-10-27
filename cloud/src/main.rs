@@ -249,21 +249,32 @@ async fn login_inner(State(app): State<App>, h: HeaderMap, Form(f): Form<Login>)
     let now = Instant::now();
     db.login_attempts.retain(|t| now.duration_since(*t) < Duration::from_secs(60));
     if db.login_attempts.len() >= 10 {
-        return Err(busy());
+        return Err(fail(StatusCode::TOO_MANY_REQUESTS, "Too many sign-in attempts. Wait one minute, then start Connect again in ChatGPT."));
     }
     db.login_attempts.push_back(now);
-    let (a, expiry) = db.pending.remove(&f.ticket).ok_or_else(|| bad("Expired login form. Reconnect from ChatGPT."))?;
+    let (a, expiry) = db
+        .pending
+        .get(&f.ticket)
+        .cloned()
+        .ok_or_else(|| bad("This connection form expired or the server restarted. Start Connect again in ChatGPT."))?;
     if expiry <= now {
-        return Err(bad("Expired login form"));
+        db.pending.remove(&f.ticket);
+        return Err(bad("This connection form expired. Start Connect again in ChatGPT."));
     }
     let digest = hash(&f.password);
     if !app.password.is_some_and(|p| bool::from(p.ct_eq(&digest))) {
-        return Err(fail(StatusCode::UNAUTHORIZED, "Incorrect password. Reconnect from ChatGPT to try again."));
+        let html = pages::consent_error(
+            &f.ticket,
+            &escape(&a.client_id),
+            "The Studio owner password did not match. Try again below. This is the STUDIO_ADMIN_PASSWORD value in Render, not your Google or ChatGPT password.",
+        );
+        return Ok((StatusCode::UNAUTHORIZED, Html(html)).into_response());
     }
     if db.codes.len() >= MAX_RECORDS {
         return Err(busy());
     }
     let mut redirect = url::Url::parse(&a.redirect_uri).map_err(|_| bad("Invalid callback"))?;
+    db.pending.remove(&f.ticket);
     let code = random();
     redirect.query_pairs_mut().append_pair("code", &code).append_pair("state", &a.state).append_pair("iss", &app.base);
     db.codes.insert(hash_key(&code), Code { request: a, expires: now + Duration::from_secs(60), principal: random() });
@@ -885,6 +896,51 @@ mod tests {
         let (status, _, v, _) = request(&app, "POST", "/oauth/token", &form(&[("grant_type", "authorization_code")]), None, None, None, true).await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
         assert_eq!(v["error"], "invalid_target");
+    }
+    #[tokio::test]
+    async fn owner_login_retry_expiry_rate_limit_and_replay() {
+        let app = app();
+        let a = Authorize {
+            client_id: "registered-client".into(),
+            redirect_uri: "https://chatgpt.com/connector_platform_oauth_redirect".into(),
+            response_type: "code".into(),
+            code_challenge: URL_SAFE_NO_PAD.encode(hash(&"v".repeat(64))),
+            code_challenge_method: "S256".into(),
+            resource: resource(&app),
+            state: "roundtrip-state".into(),
+            scope: "cad".into(),
+        };
+        app.inner.lock().await.pending.insert("retry-ticket".into(), (a.clone(), Instant::now() + Duration::from_secs(300)));
+        let wrong = form(&[("ticket", "retry-ticket"), ("password", "wrong-password-marker")]);
+        let correct = form(&[("ticket", "retry-ticket"), ("password", "test-password-at-least-20-characters")]);
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &wrong, None, None, Some("https://evil.test"), true).await;
+        assert_eq!(status, StatusCode::FORBIDDEN);
+        assert!(!html.contains("name=\"password\""));
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &wrong, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::UNAUTHORIZED);
+        assert!(html.contains("did not match"));
+        assert!(html.contains("name=\"ticket\" value=\"retry-ticket\""));
+        assert!(!html.contains("wrong-password-marker"));
+        assert!(app.inner.lock().await.codes.is_empty());
+        let (status, h, _, _) = request(&app, "POST", "/oauth/authorize", &correct, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::SEE_OTHER);
+        assert!(h["location"].to_str().unwrap().contains("iss=https%3A%2F%2Fstudio.test"));
+        assert!(!app.inner.lock().await.pending.contains_key("retry-ticket"));
+        let (status, _, _, _) = request(&app, "POST", "/oauth/authorize", &correct, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        app.inner.lock().await.pending.insert("expired-ticket".into(), (a.clone(), Instant::now() - Duration::from_secs(1)));
+        let expired = form(&[("ticket", "expired-ticket"), ("password", "test-password-at-least-20-characters")]);
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &expired, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert!(html.contains("form expired"));
+        assert!(!app.inner.lock().await.pending.contains_key("expired-ticket"));
+        app.inner.lock().await.pending.insert("limited-ticket".into(), (a, Instant::now() + Duration::from_secs(300)));
+        app.inner.lock().await.login_attempts = (0..10).map(|_| Instant::now()).collect();
+        let limited = form(&[("ticket", "limited-ticket"), ("password", "test-password-at-least-20-characters")]);
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &limited, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::TOO_MANY_REQUESTS);
+        assert!(html.contains("Too many sign-in attempts"));
+        assert!(app.inner.lock().await.pending.contains_key("limited-ticket"));
     }
     #[tokio::test]
     async fn real_cad_sessions_export_download_and_isolation() {
