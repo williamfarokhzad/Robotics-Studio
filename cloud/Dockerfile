@@ -3,6 +3,7 @@ FROM rust:1.95-slim-bookworm AS gateway
 WORKDIR /gateway
 COPY cloud/Cargo.toml cloud/Cargo.lock ./
 COPY cloud/src ./src
+COPY assets/branding/chatgpt /assets/branding/chatgpt
 RUN --mount=type=cache,target=/usr/local/cargo/registry CARGO_BUILD_JOBS=2 cargo build --release --locked
 
 FROM rust:1.95-slim-bookworm AS cad

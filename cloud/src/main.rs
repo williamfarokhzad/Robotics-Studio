@@ -1,7 +1,11 @@
 //! Private cloud MCP gateway. Each OAuth grant owns isolated, expiring CLI processes.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
+mod account;
+mod diagnostics;
+mod pages;
+
 use axum::{
-    Form, Json, Router,
+    Extension, Form, Json, Router,
     extract::{DefaultBodyLimit, Path, Query, State},
     http::{HeaderMap, StatusCode, header},
     response::{Html, IntoResponse, Redirect, Response},
@@ -40,6 +44,7 @@ struct Shared {
     inner: Mutex<Store>,
     // Single CAD operation at a time on the free instance. HTTP/auth stay responsive.
     compute: Mutex<()>,
+    diagnostics: diagnostics::Snapshot,
 }
 #[derive(Default)]
 struct Store {
@@ -180,7 +185,7 @@ fn client_uris(app: &Shared, id: &str) -> Option<Vec<String>> {
     }
     v.get("redirect_uris")?.as_array()?.iter().map(|v| v.as_str().map(str::to_string)).collect()
 }
-async fn register(State(app): State<App>, Json(v): Json<Value>) -> Result<Response, Failure> {
+async fn register(State(app): State<App>, Extension(account): Extension<account::Account>, Json(v): Json<Value>) -> Result<Response, Failure> {
     if v.get("token_endpoint_auth_method").and_then(Value::as_str).is_some_and(|s| s != "none") {
         return Err(bad("Only public PKCE clients are supported"));
     }
@@ -198,15 +203,15 @@ async fn register(State(app): State<App>, Json(v): Json<Value>) -> Result<Respon
     {
         return Err(bad("Only ChatGPT OAuth callbacks are allowed"));
     }
-    if app.password.is_none() {
+    if app.password.is_none() && !account.connector_ready() {
         return Err(fail(StatusCode::SERVICE_UNAVAILABLE, "Owner login not configured"));
     }
     let id = signed_client(&app, &uris)?;
     Ok((StatusCode::CREATED,Json(json!({"client_id":id,"redirect_uris":uris,"token_endpoint_auth_method":"none","grant_types":["authorization_code","refresh_token"],"response_types":["code"]}))).into_response())
 }
-async fn authorize(State(app): State<App>, Query(a): Query<Authorize>) -> Result<Response, Failure> {
-    if app.password.is_none() {
-        return Err(fail(StatusCode::SERVICE_UNAVAILABLE, "Owner must set STUDIO_ADMIN_PASSWORD in Render first."));
+async fn authorize(State(app): State<App>, Extension(account): Extension<account::Account>, Query(a): Query<Authorize>) -> Result<Response, Failure> {
+    if app.password.is_none() && !account.connector_ready() {
+        return Err(fail(StatusCode::SERVICE_UNAVAILABLE, "Configure an approved OpenAI client and owner identity, or an owner password."));
     }
     if a.response_type != "code"
         || a.code_challenge_method != "S256"
@@ -229,12 +234,16 @@ async fn authorize(State(app): State<App>, Query(a): Query<Authorize>) -> Result
     let ticket = random();
     let client = escape(&a.client_id);
     db.pending.insert(ticket.clone(), (a, Instant::now() + Duration::from_secs(300)));
-    let html = format!(
-        "<!doctype html><html lang=\"en\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Connect Robotics Studio</title><body><main><h1>Connect Robotics Studio</h1><p>Private owner preview. Allow ChatGPT to create, edit and export CAD designs in temporary cloud sessions.</p><p>Client: <code>{client}</code></p><p>Sessions and downloads expire after 30 minutes of inactivity or a server restart. Download your work.</p><form method=\"post\" action=\"/oauth/authorize\"><input type=\"hidden\" name=\"ticket\" value=\"{ticket}\"><label>Studio owner password <input type=\"password\" name=\"password\" required autocomplete=\"current-password\"></label><button type=\"submit\">Sign in and allow CAD access</button></form></main></body></html>"
-    );
+    let html = pages::consent(&ticket, &client, &account.connector_action(&ticket), app.password.is_some());
     Ok(Html(html).into_response())
 }
-async fn login(State(app): State<App>, h: HeaderMap, Form(f): Form<Login>) -> Result<Response, Failure> {
+async fn login(state: State<App>, headers: HeaderMap, form: Form<Login>) -> Response {
+    match login_inner(state, headers, form).await {
+        Ok(response) => response,
+        Err((status, message)) => (status, Html(pages::shell("Connection needs attention", &format!("<span class=\"eyebrow\">ROBOTICS STUDIO</span><h1>Let’s reconnect.</h1><p role=\"alert\">{}</p><a class=\"primary\" href=\"https://chatgpt.com/plugins\">Return to ChatGPT</a>", escape(&message))))).into_response(),
+    }
+}
+async fn login_inner(State(app): State<App>, h: HeaderMap, Form(f): Form<Login>) -> Result<Response, Failure> {
     if !allowed_origin(&app, &h) {
         return Err(fail(StatusCode::FORBIDDEN, "Origin rejected"));
     }
@@ -242,26 +251,59 @@ async fn login(State(app): State<App>, h: HeaderMap, Form(f): Form<Login>) -> Re
     let now = Instant::now();
     db.login_attempts.retain(|t| now.duration_since(*t) < Duration::from_secs(60));
     if db.login_attempts.len() >= 10 {
-        return Err(busy());
+        return Err(fail(StatusCode::TOO_MANY_REQUESTS, "Too many sign-in attempts. Wait one minute, then start Connect again in ChatGPT."));
     }
     db.login_attempts.push_back(now);
-    let (a, expiry) = db.pending.remove(&f.ticket).ok_or_else(|| bad("Expired login form. Reconnect from ChatGPT."))?;
+    let (a, expiry) = db
+        .pending
+        .get(&f.ticket)
+        .cloned()
+        .ok_or_else(|| bad("This connection form expired or the server restarted. Start Connect again in ChatGPT."))?;
     if expiry <= now {
-        return Err(bad("Expired login form"));
+        db.pending.remove(&f.ticket);
+        return Err(bad("This connection form expired. Start Connect again in ChatGPT."));
     }
     let digest = hash(&f.password);
     if !app.password.is_some_and(|p| bool::from(p.ct_eq(&digest))) {
-        return Err(fail(StatusCode::UNAUTHORIZED, "Incorrect password. Reconnect from ChatGPT to try again."));
+        let html = pages::consent_error(
+            &f.ticket,
+            &escape(&a.client_id),
+            "The Studio owner password did not match. Try again below. This is the STUDIO_ADMIN_PASSWORD value in Render, not your Google or ChatGPT password.",
+        );
+        return Ok((StatusCode::UNAUTHORIZED, Html(html)).into_response());
+    }
+    finish_consent(&app, &mut db, &f.ticket, true)
+}
+fn finish_consent(app: &Shared, db: &mut Store, ticket: &str, allowed: bool) -> Result<Response, Failure> {
+    let now = Instant::now();
+    let (a, expiry) = db.pending.get(ticket).cloned().ok_or_else(|| bad("Connection expired. Start Connect again in ChatGPT."))?;
+    if expiry <= now {
+        return Err(bad("Connection expired. Start Connect again in ChatGPT."));
     }
     if db.codes.len() >= MAX_RECORDS {
         return Err(busy());
     }
     let mut redirect = url::Url::parse(&a.redirect_uri).map_err(|_| bad("Invalid callback"))?;
-    let code = random();
-    redirect.query_pairs_mut().append_pair("code", &code).append_pair("state", &a.state).append_pair("iss", &app.base);
-    db.codes.insert(hash_key(&code), Code { request: a, expires: now + Duration::from_secs(60), principal: random() });
+    db.pending.remove(ticket);
+    redirect.query_pairs_mut().append_pair("state", &a.state).append_pair("iss", &app.base);
+    if allowed {
+        let code = random();
+        redirect.query_pairs_mut().append_pair("code", &code);
+        db.codes.insert(hash_key(&code), Code { request: a, expires: now + Duration::from_secs(60), principal: random() });
+    } else {
+        redirect.query_pairs_mut().append_pair("error", "access_denied");
+    }
     Ok(Redirect::to(redirect.as_str()).into_response())
 }
+async fn complete_connector(app: &App, ticket: &str) -> Result<Response, Failure> {
+    let mut db = app.inner.lock().await;
+    finish_consent(app, &mut db, ticket, true)
+}
+async fn deny_connector(app: &App, ticket: &str) -> Result<Response, Failure> {
+    let mut db = app.inner.lock().await;
+    finish_consent(app, &mut db, ticket, false)
+}
+
 async fn token(state: State<App>, form: Form<HashMap<String, String>>) -> Response {
     match token_inner(state, form).await {
         Ok(r) => r,
@@ -562,21 +604,38 @@ async fn file(State(app): State<App>, Path(cap): Path<String>) -> Result<Respons
     }
     Ok(r)
 }
+#[cfg(test)]
 fn router(app: App) -> Router {
-    Router::new().route("/",get(||async{Html("<!doctype html><html lang=en><title>Robotics Studio MCP</title><h1>Robotics Studio MCP</h1><p>Private owner preview. Connect the /mcp endpoint from ChatGPT using OAuth.</p><p>Temporary CAD sessions. Download exported work before 30 minutes idle or server restart.</p></html>")}))
+    match account::Account::new() {
+        Ok(account) => router_with_account(app, account),
+        Err(_) => Router::new().route("/health", get(|| async { StatusCode::SERVICE_UNAVAILABLE })),
+    }
+}
+fn router_with_account(app: App, account: account::Account) -> Router {
+    let gateway = app.clone();
+    let identity = account.clone();
+    Router::new().route("/", get(|State(app): State<App>| async move { Html(pages::connect(&app.base)) }))
     .route("/health",get(||async{Json(json!({"status":"ok"}))}))
     .route("/.well-known/oauth-protected-resource",get(protected)).route("/.well-known/oauth-protected-resource/mcp",get(protected))
     .route("/.well-known/oauth-authorization-server",get(metadata))
     .route("/oauth/register",post(register)).route("/oauth/authorize",get(authorize).post(login)).route("/oauth/token",post(token))
     .route("/mcp",post(mcp).get(mcp_get).delete(mcp_delete)).route("/files/{cap}",get(file))
+    .with_state(app.clone())
+    .merge(account::routes(account))
+    .merge(pages::routes())
+    .merge(diagnostics::routes(app.clone()))
+    .layer(Extension(gateway))
+    .layer(Extension(identity))
     .layer(DefaultBodyLimit::max(BODY_LIMIT))
     .layer(axum::middleware::map_response(|mut r:Response|async move{
         r.headers_mut().insert(header::CACHE_CONTROL,header::HeaderValue::from_static("no-store"));
         r.headers_mut().insert("x-content-type-options",header::HeaderValue::from_static("nosniff"));
-        r.headers_mut().insert("referrer-policy",header::HeaderValue::from_static("no-referrer"));
+        // no-referrer makes browsers serialize Origin as null on form POST.
+        // strict-origin preserves the origin check without disclosing OAuth query parameters.
+        r.headers_mut().insert("referrer-policy",header::HeaderValue::from_static("strict-origin"));
         r.headers_mut().insert("x-robots-tag",header::HeaderValue::from_static("noindex, nofollow"));
-        r.headers_mut().insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"));r
-    })).with_state(app)
+        r.headers_mut().insert("content-security-policy",header::HeaderValue::from_static("default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'"));r
+    }))
 }
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -602,7 +661,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("STUDIO_OAUTH_SIGNING_KEY must have at least 32 characters".into());
     }
     let client_key = hash(&signing);
-    let app = Arc::new(Shared { base, cli, password, client_key, inner: Mutex::new(Store::default()), compute: Mutex::new(()) });
+    let app = Arc::new(Shared {
+        base,
+        cli,
+        password,
+        client_key,
+        inner: Mutex::new(Store::default()),
+        compute: Mutex::new(()),
+        diagnostics: diagnostics::Snapshot::default(),
+    });
+    diagnostics::start(app.clone());
     let cleanup = app.clone();
     tokio::spawn(async move {
         loop {
@@ -629,7 +697,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port: u16 = std::env::var("PORT").unwrap_or_else(|_| "10000".into()).parse()?;
     let listener = tokio::net::TcpListener::bind((std::net::Ipv4Addr::UNSPECIFIED, port)).await?;
     eprintln!("Robotics Studio cloud listening on port {port}");
-    axum::serve(listener, router(app))
+    let account = account::Account::new()?;
+    axum::serve(listener, router_with_account(app, account))
         .with_graceful_shutdown(async {
             #[cfg(unix)]
             if let Ok(mut terminate) = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate()) {
@@ -653,7 +722,7 @@ mod tests {
         http::Request,
     };
     use tower::ServiceExt;
-    fn app() -> App {
+    pub(super) fn app() -> App {
         Arc::new(Shared {
             base: "https://studio.test".into(),
             cli: std::env::var_os("STUDIO_TEST_CLI").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("/bin/cat")),
@@ -661,6 +730,7 @@ mod tests {
             client_key: hash("test-signing-key-at-least-32-characters"),
             inner: Mutex::new(Store::default()),
             compute: Mutex::new(()),
+            diagnostics: diagnostics::Snapshot::default(),
         })
     }
     #[allow(clippy::too_many_arguments)]
@@ -726,8 +796,9 @@ mod tests {
             ("scope", "cad"),
             ("state", "state-must-roundtrip"),
         ]);
-        let (status, _, _, html) = request(app, "GET", &format!("/oauth/authorize?{params}"), "", None, None, None, false).await;
+        let (status, headers, _, html) = request(app, "GET", &format!("/oauth/authorize?{params}"), "", None, None, None, false).await;
         assert_eq!(status, StatusCode::OK);
+        assert_eq!(headers["referrer-policy"], "strict-origin");
         let ticket = html.split("name=\"ticket\" value=\"").nth(1).unwrap().split('"').next().unwrap();
         let (status, headers, _, _) = request(
             app,
@@ -775,6 +846,7 @@ mod tests {
             client_key: hash("a different signing key"),
             inner: Mutex::new(Store::default()),
             compute: Mutex::new(()),
+            diagnostics: diagnostics::Snapshot::default(),
         };
         assert!(client_uris(&different, &id).is_none());
         different.client_key = app.client_key;
@@ -788,6 +860,7 @@ mod tests {
         assert_eq!(status, StatusCode::UNAUTHORIZED);
         assert!(h.get("www-authenticate").is_some());
         assert_eq!(h["cache-control"], "no-store");
+        assert_eq!(h["referrer-policy"], "strict-origin");
         let (_, _, metadata, _) = request(&app, "GET", "/.well-known/oauth-protected-resource/mcp", "", None, None, None, false).await;
         assert_eq!(metadata["resource"], "https://studio.test/mcp");
         let (client, access, refresh) = grant(&app).await;
@@ -867,6 +940,53 @@ mod tests {
         let (status, _, v, _) = request(&app, "POST", "/oauth/token", &form(&[("grant_type", "authorization_code")]), None, None, None, true).await;
         assert_eq!(status, StatusCode::BAD_REQUEST);
         assert_eq!(v["error"], "invalid_target");
+    }
+    #[tokio::test]
+    async fn owner_login_retry_expiry_rate_limit_and_replay() {
+        let app = app();
+        let a = Authorize {
+            client_id: "registered-client".into(),
+            redirect_uri: "https://chatgpt.com/connector_platform_oauth_redirect".into(),
+            response_type: "code".into(),
+            code_challenge: URL_SAFE_NO_PAD.encode(hash(&"v".repeat(64))),
+            code_challenge_method: "S256".into(),
+            resource: resource(&app),
+            state: "roundtrip-state".into(),
+            scope: "cad".into(),
+        };
+        app.inner.lock().await.pending.insert("retry-ticket".into(), (a.clone(), Instant::now() + Duration::from_secs(300)));
+        let wrong = form(&[("ticket", "retry-ticket"), ("password", "wrong-password-marker")]);
+        let correct = form(&[("ticket", "retry-ticket"), ("password", "test-password-at-least-20-characters")]);
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &wrong, None, None, Some("https://evil.test"), true).await;
+        assert_eq!(status, StatusCode::FORBIDDEN);
+        assert!(!html.contains("name=\"password\""));
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &wrong, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::UNAUTHORIZED);
+        assert!(html.contains("did not match"));
+        assert!(html.contains("name=\"ticket\" value=\"retry-ticket\""));
+        assert!(!html.contains("wrong-password-marker"));
+        assert!(app.inner.lock().await.codes.is_empty());
+        let (null_status, _, _, _) = request(&app, "POST", "/oauth/authorize", &correct, None, None, Some("null"), true).await;
+        assert_eq!(null_status, StatusCode::FORBIDDEN);
+        let (status, h, _, _) = request(&app, "POST", "/oauth/authorize", &correct, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::SEE_OTHER);
+        assert!(h["location"].to_str().unwrap().contains("iss=https%3A%2F%2Fstudio.test"));
+        assert!(!app.inner.lock().await.pending.contains_key("retry-ticket"));
+        let (status, _, _, _) = request(&app, "POST", "/oauth/authorize", &correct, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        app.inner.lock().await.pending.insert("expired-ticket".into(), (a.clone(), Instant::now() - Duration::from_secs(1)));
+        let expired = form(&[("ticket", "expired-ticket"), ("password", "test-password-at-least-20-characters")]);
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &expired, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::BAD_REQUEST);
+        assert!(html.contains("form expired"));
+        assert!(!app.inner.lock().await.pending.contains_key("expired-ticket"));
+        app.inner.lock().await.pending.insert("limited-ticket".into(), (a, Instant::now() + Duration::from_secs(300)));
+        app.inner.lock().await.login_attempts = (0..10).map(|_| Instant::now()).collect();
+        let limited = form(&[("ticket", "limited-ticket"), ("password", "test-password-at-least-20-characters")]);
+        let (status, _, _, html) = request(&app, "POST", "/oauth/authorize", &limited, None, None, Some("https://studio.test"), true).await;
+        assert_eq!(status, StatusCode::TOO_MANY_REQUESTS);
+        assert!(html.contains("Too many sign-in attempts"));
+        assert!(app.inner.lock().await.pending.contains_key("limited-ticket"));
     }
     #[tokio::test]
     async fn real_cad_sessions_export_download_and_isolation() {

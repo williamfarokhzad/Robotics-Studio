@@ -201,7 +201,7 @@ fn menu_commands(
 
 /// Room for the version between Report a bug and the caption buttons.
 const RIGHT_GROUP: f32 = 60.0;
-const CLUSTER_BUTTONS: f32 = 108.0;
+const CLUSTER_BUTTONS: f32 = 142.0;
 
 /// The centre of Help, between Settings and Report a bug.
 fn help_x(report: Rect) -> f32 {
@@ -406,6 +406,7 @@ pub fn app_bar(app: &mut SolveApp, ui: &mut egui::Ui) {
         let report_font = FontId::proportional(t.font_button);
         let label_width = ui.painter().layout_no_wrap(report_text.to_string(), report_font.clone(), t.app_bar_text).size().x;
         let (report, report_label) = report_rect(r, captions, tabs_start, label_width);
+        crate::chatgpt_account::button(ui, Rect::from_center_size(pos2(report.left() - 120.0, r.center().y), vec2(32.0, 32.0)));
         // Assistant, Settings, Help and Report a bug form the right-hand cluster.
         if click(ui, help_x(report), "help", app.tr("ui.help"), true) {
             app.help.menu = !app.help.menu;
@@ -2229,6 +2230,13 @@ mod header_report_tests {
         assert!(at("titlebar:preferences") < at("appbar:help") && (at("appbar:help") as f64) < report);
         assert!(at("appbar:home") < at("appbar:file"));
         assert!(h.widget("Start page").is_some(), "the house button has an accessible name");
+        assert!(at("tab:design:0") < at("titlebar:chatgpt"));
+        assert!(at("titlebar:chatgpt") < at("titlebar:assistant"));
+        h.step(&json!({"click":{"handle":"titlebar:chatgpt"}})).unwrap();
+        assert!(h.widget("Continue with ChatGPT").is_some());
+        h.step(&json!({"key":"Escape"})).unwrap();
+        h.frames(2);
+        assert!(h.widget("Continue with ChatGPT").is_none());
         h.step(&json!({"click":{"handle":"appbar:help"}})).unwrap();
         assert!(h.app.help.menu, "? opens the Help menu");
         h.step(&json!({"key":"Escape"})).unwrap();

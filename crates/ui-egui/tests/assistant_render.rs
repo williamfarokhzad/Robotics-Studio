@@ -108,3 +108,57 @@ fn assistant_transcript_tools_and_approvals_fit_in_both_themes() {
     }
     theme::set_dark(previous);
 }
+
+#[test]
+fn chatgpt_account_popup_is_compact_accessible_and_dismissible() {
+    let previous = theme::is_dark();
+    for dark in [false, true] {
+        let mut h = Harness::new();
+        h.app.home.open = false;
+        h.call("ui.set", json!({"dark":dark}));
+        h.ctx = egui::Context::default();
+        h.ctx.enable_accesskit();
+        solidcraft_ui_egui::fonts::setup_fonts(&h.ctx);
+        theme::apply(&h.ctx);
+        let mut textures = HashMap::new();
+        for _ in 0..5 {
+            raster::paint(&mut h, &mut textures, vec![]);
+        }
+        let at = scenario::handle_at("titlebar:chatgpt").expect("account icon target");
+        for pressed in [true, false] {
+            raster::paint(
+                &mut h,
+                &mut textures,
+                vec![
+                    egui::Event::PointerMoved(at),
+                    egui::Event::PointerButton { pos: at, button: egui::PointerButton::Primary, pressed, modifiers: egui::Modifiers::NONE },
+                ],
+            );
+        }
+        for _ in 0..5 {
+            raster::paint(&mut h, &mut textures, vec![]);
+        }
+        let output = raster::paint(&mut h, &mut textures, vec![]);
+        h.output = output.platform_output.clone();
+        assert!(h.widget("Continue with ChatGPT").is_some());
+        assert!(h.widget("Connect Studio to ChatGPT").is_some());
+        let screenshot = raster::raster(&mut h, &textures, output);
+        if let Ok(dir) = std::env::var("SOLIDCRAFT_ACCOUNT_EVIDENCE") {
+            std::fs::create_dir_all(&dir).unwrap();
+            image::imageops::crop_imm(&screenshot, (at.x - 300.0).max(0.0) as u32, 0, 450, 460)
+                .to_image()
+                .save(std::path::Path::new(&dir).join(if dark { "chatgpt-dark.png" } else { "chatgpt-light.png" }))
+                .unwrap();
+        }
+        let output = raster::paint(
+            &mut h,
+            &mut textures,
+            vec![egui::Event::Key { key: egui::Key::Escape, physical_key: None, pressed: true, repeat: false, modifiers: egui::Modifiers::NONE }],
+        );
+        h.output = output.platform_output;
+        let output = raster::paint(&mut h, &mut textures, vec![]);
+        h.output = output.platform_output;
+        assert!(h.widget("Continue with ChatGPT").is_none());
+    }
+    theme::set_dark(previous);
+}

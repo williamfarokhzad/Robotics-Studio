@@ -69,3 +69,57 @@ cross-grant access rejection and session deletion.
 `GET /health` checks HTTP readiness. `POST /mcp` requires bearer authentication and both
 JSON and SSE in Accept. Notifications return 202; requests return JSON. `GET /mcp` returns
 405 (no server-initiated SSE); `DELETE /mcp` ends a session. No request or secret logging.
+
+## ChatGPT account preview
+
+The account service and redesigned connector pages are documented in
+[ChatGPT sign-in](../docs/chatgpt-sign-in.md). Identity-only sign-in is disabled
+until OpenAI issues an approved `OPENAI_CLIENT_ID`. No ChatGPT password or API key
+is collected by Studio. The existing owner-only MCP authorization remains separate.
+Deploy the frontend reverse proxy and gateway together for same-origin sessions.
+
+The `account_test_key.pem` and `account_test_jwks.json` files are public test-only
+fixtures for signature-validation tests, not service credentials or signing keys.
+They are only included under `cfg(test)` and are never used by the running service.
+
+## Owner sign-in troubleshooting
+
+The owner password is the exact `STUDIO_ADMIN_PASSWORD` value on the gateway service
+in Render. It is separate from Google, ChatGPT, and the OpenAI client secret.
+A wrong password now keeps the same unexpired form available for another attempt;
+password input is never echoed back. The form expires after five minutes and is
+consumed only after successful authorization. Restarting the gateway also expires
+pending forms. Start Connect again from the existing ChatGPT plugin when that happens.
+Ten attempts in a minute trigger a one-minute cooldown. Error pages distinguish
+password mismatch, expired forms, rejected origins, and the cooldown.
+
+A secure ChatGPT credential prompt returning declined is not evidence that the
+server rejected a password. Check the actual site result before diagnosing it.
+Never paste passwords into chat or disable OAuth to work around a sign-in failure.
+
+Browser consent responses use `Referrer-Policy: strict-origin`: this keeps OAuth
+query parameters out of referrers while allowing browsers to send the actual
+Origin on the form POST. `no-referrer` can turn that Origin into `null` and cause
+an otherwise correct password submission to fail before password verification.
+Null and foreign origins remain rejected. Reopen Connect after an upgrade so
+an older page does not keep its cached no-referrer policy.
+
+## Fixed cloud CAD probe
+
+Every gateway process starts one isolated, bounded CAD probe in the background. It draws
+an XY square from (0, 0) to (20, 20) mm, finishes the sketch, extrudes 2 mm, verifies
+800 mm³, and exports STEP and STL. `/diagnostics` shows the actual engine preview and
+`/diagnostics/report` returns the measurements. The fixed example exports are public;
+these routes cannot accept commands, rerun work, or access owner sessions or files.
+Repeated reads use the cached result. The worker has the same environment and path
+confinement as normal CAD sessions, a 90 second deadline, and is killed afterwards.
+
+`draw_ms` measures the sketch and extrusion; `total_ms` also includes worker startup,
+measurement and exports. Preview rendering is excluded. `container_cpu_ms`, when
+cgroup v2 is available, is the container's CPU-time delta over that interval, including
+any HTTP activity. `worker_peak_rss_kib` is Linux VmHWM before rendering. Neither is an
+electrical power measurement. `energy_wh` stays null because this host provides no
+power meter. A single startup sample is not a concurrency or capacity benchmark.
+The probe is independent of ChatGPT OAuth: passing it does not prove that a user's
+ChatGPT connector has completed authorization. `/health` remains a fast HTTP liveness
+check, separate from this one-time CAD result.

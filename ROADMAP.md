@@ -3,6 +3,15 @@
 Status as of **2026-10-14**. SolidCraft supports parametric modelling (sketch →
 features → parametric timeline) as an open, pure-Rust, agent-drivable application.
 
+## Robotics Studio account preview (2026-10-27)
+
+The shared desktop/web title bar now includes a compact ChatGPT account panel.
+The cloud service implements identity-only OIDC sign-in and secure browser sessions;
+activation awaits an OpenAI-issued client ID. The desktop entry opens the hosted
+browser account; it does not yet transfer identity into the native process.
+MCP onboarding and owner consent have responsive pages and clearer setup steps.
+See [account setup and limits](docs/chatgpt-sign-in.md). No AI usage is enabled.
+
 ## At a glance
 
 | Question | Answer |

@@ -19,6 +19,8 @@ url = "2"
 subtle = "2"
 uuid = { version = "1", features = ["v4"] }
 tempfile = "3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+jsonwebtoken = { version = "10", default-features = false, features = ["rust_crypto"] }
 tokio-util = { version = "0.7", features = ["io"] }
 
 [lints.rust]
