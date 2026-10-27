@@ -28,8 +28,20 @@ pub(crate) fn connect(base: &str) -> String {
         ),
     )
 }
-pub(crate) fn consent(ticket: &str, client: &str) -> String {
-    consent_error(ticket, client, "")
+pub(crate) fn consent(ticket: &str, client: &str, action: &str, password_available: bool) -> String {
+    let fallback = if password_available {
+        format!(
+            r#"<details><summary>Owner password fallback</summary><form method="post" action="/oauth/authorize"><input type="hidden" name="ticket" value="{ticket}"><label for="owner">Studio owner password<input id="owner" type="password" name="password" required autocomplete="current-password" placeholder="Enter your Studio password"></label><button class="secondary" type="submit">Allow CAD access</button></form><p class="muted">Use STUDIO_ADMIN_PASSWORD from Render, not your Google or ChatGPT password.</p></details>"#
+        )
+    } else {
+        String::new()
+    };
+    shell(
+        "Allow CAD access",
+        &format!(
+            r#"<span class="eyebrow">ROBOTICS STUDIO × CHATGPT</span><h1>Bring your designs<br>into the conversation.</h1><p>Allow ChatGPT to create, edit, measure and export models in temporary cloud sessions.</p>{action}{fallback}<details><summary>Connection details</summary><code>{client}</code></details><p class="muted">This sign-in form expires after 5 minutes. If it expires, start Connect again in ChatGPT. Download your work before 30 minutes of inactivity or a server restart.</p><a href="https://chatgpt.com/plugins">Cancel and return to ChatGPT</a>"#
+        ),
+    )
 }
 pub(crate) fn consent_error(ticket: &str, client: &str, error: &str) -> String {
     let notice = if error.is_empty() { String::new() } else { format!("<p role=\"alert\">{}</p>", crate::escape(error)) };

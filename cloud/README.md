@@ -96,3 +96,10 @@ password mismatch, expired forms, rejected origins, and the cooldown.
 A secure ChatGPT credential prompt returning declined is not evidence that the
 server rejected a password. Check the actual site result before diagnosing it.
 Never paste passwords into chat or disable OAuth to work around a sign-in failure.
+
+Browser consent responses use `Referrer-Policy: strict-origin`: this keeps OAuth
+query parameters out of referrers while allowing browsers to send the actual
+Origin on the form POST. `no-referrer` can turn that Origin into `null` and cause
+an otherwise correct password submission to fail before password verification.
+Null and foreign origins remain rejected. Reopen Connect after an upgrade so
+an older page does not keep its cached no-referrer policy.

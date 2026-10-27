@@ -1,7 +1,7 @@
 //! Identity-only OpenAI OIDC. Credentials stay on the server; no inference scopes.
 use crate::{Failure, escape, hash_key, random};
 use axum::{
-    Json, Router,
+    Extension, Json, Router,
     extract::{Query, State},
     http::{HeaderMap, StatusCode, header},
     response::{Html, IntoResponse, Redirect, Response},
@@ -29,6 +29,7 @@ pub(crate) struct Account(Arc<Service>);
 struct Service {
     config: Option<Config>,
     origin: String,
+    owner_email: Option<String>,
     http: reqwest::Client,
     db: Mutex<Store>,
 }
@@ -42,6 +43,7 @@ struct Store {
     sessions: HashMap<String, Session>,
 }
 struct Transaction {
+    connector: Option<String>,
     browser: String,
     verifier: String,
     nonce: String,
@@ -67,6 +69,10 @@ struct Discovery {
     token_endpoint: String,
     jwks_uri: String,
 }
+#[derive(Default, Deserialize)]
+struct Start {
+    connector: Option<String>,
+}
 #[derive(Deserialize)]
 struct Callback {
     state: Option<String>,
@@ -90,6 +96,21 @@ struct Claims {
 }
 
 impl Account {
+    pub(crate) fn connector_ready(&self) -> bool {
+        self.0.config.is_some() && self.0.owner_email.is_some()
+    }
+    pub(crate) fn connector_action(&self, ticket: &str) -> String {
+        if self.connector_ready() {
+            let query = url::form_urlencoded::Serializer::new(String::new()).append_pair("connector", ticket).finish();
+            format!(
+                "<a class=\"primary\" href=\"{}/auth/openai?{}\"><img class=\"logo\" src=\"/auth/logo-black.svg\" alt=\"\">Continue with ChatGPT and allow CAD access</a><p class=\"muted\">After you sign in, the connection finishes automatically. Access is limited to the verified Studio owner.</p>",
+                escape(&self.0.origin),
+                escape(&query)
+            )
+        } else {
+            "<button class=\"primary\" disabled>Continue with ChatGPT</button><p class=\"muted\">Automatic connection needs an approved OpenAI client ID and a configured Studio owner identity.</p>".into()
+        }
+    }
     pub(crate) fn new() -> Result<Self, Box<dyn std::error::Error>> {
         let origin = std::env::var("STUDIO_LOGIN_ORIGIN").unwrap_or_else(|_| "https://robotics-studio.onrender.com".into());
         let origin = origin.trim_end_matches('/').to_string();
@@ -106,7 +127,8 @@ impl Account {
         let client = std::env::var("OPENAI_CLIENT_ID").ok().filter(|c| !c.trim().is_empty());
         let config = client.map(|client| Config { client, secret: std::env::var("OPENAI_CLIENT_SECRET").ok().filter(|s| !s.is_empty()) });
         let http = reqwest::Client::builder().timeout(Duration::from_secs(15)).redirect(reqwest::redirect::Policy::none()).build()?;
-        Ok(Self(Arc::new(Service { config, origin, http, db: Mutex::new(Store::default()) })))
+        let owner_email = std::env::var("STUDIO_OWNER_EMAIL").ok().map(|x| x.trim().to_lowercase()).filter(|x| !x.is_empty());
+        Ok(Self(Arc::new(Service { config, origin, owner_email, http, db: Mutex::new(Store::default()) })))
     }
 }
 fn unavailable() -> Failure {
@@ -159,7 +181,16 @@ async fn discovery(a: &Account) -> Result<Discovery, Failure> {
     }
     Ok(d)
 }
-async fn start(State(a): State<Account>) -> Result<Response, Failure> {
+async fn start(State(a): State<Account>, gateway: Option<Extension<crate::App>>, Query(q): Query<Start>) -> Result<Response, Failure> {
+    if let Some(ticket) = &q.connector {
+        if !a.connector_ready() {
+            return Err(unavailable());
+        }
+        let app = gateway.as_ref().map(|x| &x.0).ok_or_else(rejected)?;
+        if ticket.len() != 64 || app.inner.lock().await.pending.get(ticket).is_none_or(|(_, expiry)| *expiry <= Instant::now()) {
+            return Err(rejected());
+        }
+    }
     let c = a.0.config.as_ref().ok_or_else(unavailable)?;
     let d = discovery(&a).await?;
     let state = random();
@@ -182,8 +213,10 @@ async fn start(State(a): State<Account>) -> Result<Response, Failure> {
     if db.pending.len() >= LIMIT {
         return Err((StatusCode::TOO_MANY_REQUESTS, "Please try again shortly.".into()));
     }
-    db.pending
-        .insert(hash_key(&state), Transaction { browser: hash_key(&browser), verifier, nonce, expires: Instant::now() + Duration::from_secs(300) });
+    db.pending.insert(
+        hash_key(&state),
+        Transaction { connector: q.connector, browser: hash_key(&browser), verifier, nonce, expires: Instant::now() + Duration::from_secs(300) },
+    );
     let mut r = Redirect::to(u.as_str()).into_response();
     set_cookie(&mut r, TRANSACTION, &browser, 300);
     Ok(r)
@@ -217,12 +250,26 @@ fn verify(token: &str, keys: &JwkSet, c: &Config, nonce: &str) -> Result<Identit
         email: claims.email.filter(|_| claims.email_verified == Some(true)),
     })
 }
-async fn callback(State(a): State<Account>, h: HeaderMap, Query(q): Query<Callback>) -> Result<Response, Failure> {
+async fn callback(
+    State(a): State<Account>,
+    gateway: Option<Extension<crate::App>>,
+    h: HeaderMap,
+    Query(q): Query<Callback>,
+) -> Result<Response, Failure> {
     let c = a.0.config.as_ref().ok_or_else(unavailable)?;
     let state = q.state.filter(|s| s.len() <= 128).ok_or_else(rejected)?;
     let browser = cookie(&h, TRANSACTION).ok_or_else(rejected)?;
     let t = a.0.db.lock().await.pending.remove(&hash_key(&state)).ok_or_else(rejected)?;
-    if t.expires <= Instant::now() || t.browser != hash_key(&browser) || q.error.is_some() {
+    if t.expires <= Instant::now() || t.browser != hash_key(&browser) {
+        return Err(rejected());
+    }
+    if q.error.is_some() {
+        if let Some(ticket) = t.connector {
+            let app = gateway.as_ref().map(|x| &x.0).ok_or_else(rejected)?;
+            let mut r = crate::deny_connector(app, &ticket).await?;
+            set_cookie(&mut r, TRANSACTION, "", 0);
+            return Ok(r);
+        }
         return Err(rejected());
     }
     let code = q.code.filter(|s| !s.is_empty() && s.len() <= 8192).ok_or_else(rejected)?;
@@ -242,17 +289,38 @@ async fn callback(State(a): State<Account>, h: HeaderMap, Query(q): Query<Callba
     // Fetch current keys, including rotated keys. No credentials are sent to the JWKS endpoint.
     let keys: JwkSet = read_json(a.0.http.get(&d.jwks_uri).send().await.map_err(|_| rejected())?).await?;
     let identity = verify(&tokens.id_token, &keys, c, &t.nonce)?;
+    finish_login(&a, gateway.as_ref().map(|x| &x.0), &h, identity, t.connector.as_deref()).await
+}
+async fn finish_login(
+    a: &Account,
+    gateway: Option<&crate::App>,
+    h: &HeaderMap,
+    identity: Identity,
+    connector: Option<&str>,
+) -> Result<Response, Failure> {
+    if connector.is_some() && (!a.connector_ready() || identity.email.as_ref().map(|x| x.trim().to_lowercase()) != a.0.owner_email) {
+        return Err((
+            StatusCode::FORBIDDEN,
+            "This verified account is not authorized for the private Studio. Sign in with the owner's account.".into(),
+        ));
+    }
     let sid = random();
     let mut db = a.0.db.lock().await;
     sweep(&mut db);
     if db.sessions.len() >= LIMIT {
         return Err((StatusCode::TOO_MANY_REQUESTS, "Please try again shortly.".into()));
     }
-    if let Some(old) = cookie(&h, SESSION) {
+    // Only a verified identity and the browser-bound inner transaction reach here.
+    // The outer code keeps the original connector state, callback and PKCE values.
+    let mut r = if let Some(ticket) = connector {
+        crate::complete_connector(gateway.ok_or_else(rejected)?, ticket).await?
+    } else {
+        Redirect::to(&format!("{}/account", a.0.origin)).into_response()
+    };
+    if let Some(old) = cookie(h, SESSION) {
         db.sessions.remove(&hash_key(&old));
     }
     db.sessions.insert(hash_key(&sid), Session { identity, csrf: random(), expires: Instant::now() + Duration::from_secs(28800) });
-    let mut r = Redirect::to(&format!("{}/account", a.0.origin)).into_response();
     set_cookie(&mut r, SESSION, &sid, 28800);
     set_cookie(&mut r, TRANSACTION, "", 0);
     Ok(r)
@@ -362,12 +430,19 @@ mod tests {
         let a = Account(Arc::new(Service {
             config: Some(Config { client: "oaiapp_test".into(), secret: None }),
             origin: "https://studio.test".into(),
+            owner_email: None,
             http: reqwest::Client::new(),
             db: Mutex::new(Store::default()),
         }));
         a.0.db.lock().await.pending.insert(
             hash_key("state"),
-            Transaction { browser: hash_key("browser"), verifier: random(), nonce: random(), expires: Instant::now() + Duration::from_secs(300) },
+            Transaction {
+                connector: None,
+                browser: hash_key("browser"),
+                verifier: random(),
+                nonce: random(),
+                expires: Instant::now() + Duration::from_secs(300),
+            },
         );
         let r = routes(a.clone())
             .oneshot(
@@ -412,10 +487,78 @@ mod tests {
         assert!(a.0.db.lock().await.sessions.is_empty());
     }
     #[tokio::test]
+    async fn connector_login_is_owner_only_one_use_and_keeps_outer_pkce() {
+        let a = Account(Arc::new(Service {
+            config: Some(Config { client: "oaiapp_test".into(), secret: None }),
+            origin: "https://studio.test".into(),
+            owner_email: Some("owner@example.test".into()),
+            http: reqwest::Client::new(),
+            db: Mutex::new(Store::default()),
+        }));
+        let gateway = crate::tests::app();
+        let callback = "https://chatgpt.com/connector_platform_oauth_redirect";
+        let client = crate::signed_client(&gateway, &[callback.into()]).unwrap();
+        let verifier = "outer-verifier".repeat(5);
+        let request = crate::Authorize {
+            client_id: client.clone(),
+            redirect_uri: callback.into(),
+            response_type: "code".into(),
+            code_challenge: URL_SAFE_NO_PAD.encode(crate::hash(&verifier)),
+            code_challenge_method: "S256".into(),
+            resource: crate::resource(&gateway),
+            state: "outer-state".into(),
+            scope: "cad".into(),
+        };
+        gateway.inner.lock().await.pending.insert("connector-ticket".into(), (request.clone(), Instant::now() + Duration::from_secs(300)));
+        let owner = Identity {
+            issuer: ISSUER.into(),
+            client: "oaiapp_test".into(),
+            subject: "verified-owner".into(),
+            name: "Owner".into(),
+            email: Some("Owner@example.test".into()),
+        };
+        for email in [None, Some("someone-else@example.test".into())] {
+            let other = Identity { email, ..owner.clone() };
+            let e = finish_login(&a, Some(&gateway), &HeaderMap::new(), other, Some("connector-ticket")).await.unwrap_err();
+            assert_eq!(e.0, StatusCode::FORBIDDEN);
+            assert!(gateway.inner.lock().await.codes.is_empty());
+            assert!(a.0.db.lock().await.sessions.is_empty());
+        }
+        let r = finish_login(&a, Some(&gateway), &HeaderMap::new(), owner.clone(), Some("connector-ticket")).await.unwrap();
+        assert_eq!(r.status(), StatusCode::SEE_OTHER);
+        assert!(r.headers().get_all(header::SET_COOKIE).iter().any(|c| c.to_str().unwrap().contains("Secure; HttpOnly; SameSite=Lax")));
+        let u = url::Url::parse(r.headers()[header::LOCATION].to_str().unwrap()).unwrap();
+        let q: HashMap<String, String> = u.query_pairs().into_owned().collect();
+        assert_eq!(q["state"], "outer-state");
+        assert_eq!(q["iss"], gateway.base);
+        let token = HashMap::from([
+            ("grant_type".into(), "authorization_code".into()),
+            ("client_id".into(), client),
+            ("redirect_uri".into(), callback.into()),
+            ("code".into(), q["code"].clone()),
+            ("code_verifier".into(), verifier),
+            ("resource".into(), crate::resource(&gateway)),
+        ]);
+        let r = crate::token_inner(State(gateway.clone()), axum::Form(token.clone())).await.unwrap();
+        assert_eq!(r.status(), StatusCode::OK);
+        assert!(!gateway.inner.lock().await.tokens.is_empty());
+        assert!(crate::token_inner(State(gateway.clone()), axum::Form(token)).await.is_err());
+        assert!(finish_login(&a, Some(&gateway), &HeaderMap::new(), owner.clone(), Some("connector-ticket")).await.is_err());
+        gateway.inner.lock().await.pending.insert("expired".into(), (request, Instant::now() - Duration::from_secs(1)));
+        assert!(finish_login(&a, Some(&gateway), &HeaderMap::new(), owner, Some("expired")).await.is_err());
+        assert_eq!(a.0.db.lock().await.sessions.len(), 1);
+        let unbound = routes(a)
+            .oneshot(axum::http::Request::builder().uri("/auth/openai?connector=unknown").body(axum::body::Body::empty()).unwrap())
+            .await
+            .unwrap();
+        assert_eq!(unbound.status(), StatusCode::BAD_REQUEST);
+    }
+    #[tokio::test]
     async fn unconfigured_login_never_fakes_a_session() {
         let a = Account(Arc::new(Service {
             config: None,
             origin: "https://studio.test".into(),
+            owner_email: None,
             http: reqwest::Client::new(),
             db: Mutex::new(Store::default()),
         }));
