@@ -1,6 +1,7 @@
 //! Private cloud MCP gateway. Each OAuth grant owns isolated, expiring CLI processes.
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 mod account;
+mod diagnostics;
 mod pages;
 
 use axum::{
@@ -43,6 +44,7 @@ struct Shared {
     inner: Mutex<Store>,
     // Single CAD operation at a time on the free instance. HTTP/auth stay responsive.
     compute: Mutex<()>,
+    diagnostics: diagnostics::Snapshot,
 }
 #[derive(Default)]
 struct Store {
@@ -618,9 +620,10 @@ fn router_with_account(app: App, account: account::Account) -> Router {
     .route("/.well-known/oauth-authorization-server",get(metadata))
     .route("/oauth/register",post(register)).route("/oauth/authorize",get(authorize).post(login)).route("/oauth/token",post(token))
     .route("/mcp",post(mcp).get(mcp_get).delete(mcp_delete)).route("/files/{cap}",get(file))
-    .with_state(app)
+    .with_state(app.clone())
     .merge(account::routes(account))
     .merge(pages::routes())
+    .merge(diagnostics::routes(app.clone()))
     .layer(Extension(gateway))
     .layer(Extension(identity))
     .layer(DefaultBodyLimit::max(BODY_LIMIT))
@@ -658,7 +661,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("STUDIO_OAUTH_SIGNING_KEY must have at least 32 characters".into());
     }
     let client_key = hash(&signing);
-    let app = Arc::new(Shared { base, cli, password, client_key, inner: Mutex::new(Store::default()), compute: Mutex::new(()) });
+    let app = Arc::new(Shared {
+        base,
+        cli,
+        password,
+        client_key,
+        inner: Mutex::new(Store::default()),
+        compute: Mutex::new(()),
+        diagnostics: diagnostics::Snapshot::default(),
+    });
+    diagnostics::start(app.clone());
     let cleanup = app.clone();
     tokio::spawn(async move {
         loop {
@@ -718,6 +730,7 @@ mod tests {
             client_key: hash("test-signing-key-at-least-32-characters"),
             inner: Mutex::new(Store::default()),
             compute: Mutex::new(()),
+            diagnostics: diagnostics::Snapshot::default(),
         })
     }
     #[allow(clippy::too_many_arguments)]
@@ -833,6 +846,7 @@ mod tests {
             client_key: hash("a different signing key"),
             inner: Mutex::new(Store::default()),
             compute: Mutex::new(()),
+            diagnostics: diagnostics::Snapshot::default(),
         };
         assert!(client_uris(&different, &id).is_none());
         different.client_key = app.client_key;
